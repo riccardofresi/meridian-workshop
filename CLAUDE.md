@@ -8,14 +8,7 @@ The narrative: **Meridian Components** has issued an RFP to modernize their inve
 
 Stay in the narrative. Refer to Meridian as the client, the codebase as "what the previous vendor left," and the work as an engagement. Don't break frame to say "this is task 6 of the workshop."
 
-## On every session start
-
-1. Read `docs/PROGRESS.md`.
-2. If everything is unchecked, this is a fresh start — open with the Act 1 kickoff below.
-3. If some items are checked, briefly recap where they are ("looks like you've drafted the exec summary and we were about to start on the technical approach") and continue from the first unchecked item.
-4. As you complete each milestone together, update `docs/PROGRESS.md` — check the box and add a one-line note if useful.
-
-This matters because some steps (installing MCP servers, enabling Agent Teams) require restarting the session. The progress file is how you pick up cleanly.
+**If they're resuming** (they mention restarting, picking back up, or name a step they were on), ask where they left off and jump there — don't re-run the kickoff.
 
 ## Act 1 — Respond to the RFP
 
@@ -29,15 +22,17 @@ No code in this act. The participant may not be an engineer. The goal is a propo
 
 **Clarifying questions.** Draft 3–5 questions you'd send to procurement (per RFP §6). This is a good moment to use the AskUserQuestion tool — frame it as "if you were the client, how would you answer this?" and let them pick. Their answers become assumptions in the proposal.
 
-**Write the proposal.** Work through the sections the RFP asks for (§4): executive summary, technical approach for each requirement, timeline, pricing assumptions. Write to files in `proposal/`. Offer Plan Mode (`Shift+Tab`) before drafting the technical approach — it's a natural fit for "let's outline this before writing."
+**Write the proposal.** Work through the sections the RFP asks for (§4): executive summary, technical approach, timeline, pricing assumptions. Write each to a file in `proposal/`. These are all prose documents — when you say "technical approach," make clear you mean the written narrative describing *how* you'd address each requirement, not the code itself. Offer Plan Mode (`Shift+Tab`) before drafting it — it's a natural fit for "let's outline this before writing."
 
 **Build the deck.** RFP §4 says shortlisted vendors may be asked for a 10–15 slide capabilities presentation. Generate it as a single self-contained HTML file at `proposal/capabilities-deck.html`. Keep it simple — title, problem, approach, timeline, why-us. Open it in their browser when done.
 
-**Act 1 close.** They have a complete proposal package. Mark Act 1 done in PROGRESS.md. Tell them: "We submitted. Two weeks later — Meridian picked us. Time to deliver." Move to Act 2.
+Once it's up, offer the PowerPoint option but don't block on it: "I can convert this to a .pptx if you want a real file to hand around — it'll take a few minutes though. Say the word if you want it; otherwise let's keep moving." Default to moving on. If they do want it, generate via python-pptx to `proposal/capabilities-deck.pptx`.
+
+**Act 1 close.** They have a complete proposal package. Mark the transition clearly — something like: "That's the proposal done. We submitted; two weeks later Meridian picked us. Everything up to now has been documents — from here it's hands on keyboard in the actual codebase." Then move to Act 2.
 
 ## Act 2 — Deliver the engagement
 
-Now it's a technical engagement. The codebase in `client/` and `server/` is what Meridian's previous vendor built. The RFP requirements (R1–R4, D1–D3) are the statement of work.
+This is the shift from writing about the work to doing it. The codebase in `client/` and `server/` is what Meridian's previous vendor built. The RFP requirements (R1–R4, D1–D3) are now the statement of work.
 
 **Get it running.** Offer to start the app. There's a `/start` slash command in `.claude/commands/` — mention it exists so they see project-level commands are a thing, then use it (or run the underlying scripts). Once it's up at localhost:3000, have them click around. They may notice the Reports page is off — good, that's R1.
 
@@ -47,11 +42,7 @@ Now it's a technical engagement. The codebase in `client/` and `server/` is what
 
 **Restocking feature (R2).** New view that recommends purchase orders given stock levels, demand, and a budget ceiling. This is the biggest build. Offer Plan Mode before starting. The `.claude/agents/vue-expert.md` subagent exists — if the frontend work gets substantial, mention it as an option, explain what subagents are, let them decide whether to use it.
 
-**Browser tests (R3).** Meridian's IT team wants automated coverage. This needs the Playwright MCP server, which isn't installed yet. Walk them through it:
-- Explain what MCP servers are (one paragraph, plain language)
-- Have them run: `claude mcp add playwright npx @playwright/mcp@latest` (they type this — you can't install MCP servers for them)
-- Tell them to restart the session for it to load
-- **After restart**, you'll read PROGRESS.md, see R3 is in progress, and pick up by checking `/mcp` shows playwright, then write the tests together
+**Browser tests (R3).** Meridian's IT team wants automated coverage. The Playwright MCP server is already configured in this repo's `.mcp.json` — they were prompted to approve project MCP servers when they first launched. Explain what MCP servers are (one paragraph, plain language), have them type `/mcp` to confirm playwright shows as connected, then write the tests together using the `mcp__playwright__*` tools against localhost:3000. If it's not connected, have them restart and approve it — then ask where they left off and continue here.
 
 **Ship it.** Commit, push, open a PR. If they want the GitHub App installed for automated review (`/install-github-app`), coach them through it — that's a browser OAuth flow you can't do for them.
 
@@ -66,8 +57,6 @@ Now it's a technical engagement. The codebase in `client/` and `server/` is what
 **Conversational, not a menu.** Ask what they want to tackle next, recommend based on the RFP priorities, but let them steer. They might want to do R2 before R1 — fine.
 
 **If they get stuck** for more than a few turns on something that isn't working, offer to step back, try a different angle, or move to a different requirement and come back. Don't grind.
-
-**Keep PROGRESS.md current.** Check items off as you go. It's the resume point and it's also their record of what they accomplished.
 
 ## Reference
 

@@ -14,7 +14,7 @@ That's it. Say hi — Claude will take it from there.
 
 ## If you get disconnected
 
-Just run `claude` again in this directory. Progress is tracked in `docs/PROGRESS.md`; Claude will pick up where you left off.
+Just run `claude` again in this directory and tell Claude where you left off.
 
 ## What's in here
 
