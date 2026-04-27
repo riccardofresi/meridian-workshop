@@ -735,4 +735,37 @@ tbody tr:hover {
 :root[data-theme="dark"] .language-label {
   color: var(--ink) !important;
 }
+
+/* ProfileMenu dropdown internals: header banner, name/email, divider,
+ * task badge, logout item. The .dropdown-menu is already darkened above;
+ * these are the children that re-declare their own backgrounds/colors. */
+:root[data-theme="dark"] .dropdown-header {
+  background: var(--bg-muted) !important;
+}
+
+:root[data-theme="dark"] .user-name,
+:root[data-theme="dark"] .profile-name {
+  color: var(--ink-strong) !important;
+}
+
+:root[data-theme="dark"] .user-email {
+  color: var(--ink-soft) !important;
+}
+
+:root[data-theme="dark"] .dropdown-divider {
+  background: var(--border) !important;
+}
+
+:root[data-theme="dark"] .dropdown-item.logout {
+  color: #f87171 !important;  /* keep destructive cue but lighten for dark bg */
+}
+
+:root[data-theme="dark"] .dropdown-item.logout:hover {
+  background: rgba(248, 113, 113, 0.12) !important;
+}
+
+:root[data-theme="dark"] .task-badge {
+  background: var(--accent) !important;
+  color: var(--bg-app) !important;
+}
 </style>
