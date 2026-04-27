@@ -81,6 +81,7 @@ is below. Tests are added incrementally; this README is the source of truth for 
 | 6 | Backlog view with PO status tracking | `specs/06-backlog.spec.js` | ✅ shipped (W7 — route added, #DEBT-05 closed) |
 | 7 | Spending — summary, monthly, and category views with filter consistency | `specs/07-spending.spec.js` | ✅ shipped |
 | 8 | Restocking flow end-to-end (added in Phase 2) | `specs/08-restocking.spec.js` | ✅ shipped (R2 W6) |
+| 9 | Dark mode toggle (D3 desired, `feat/dark-mode` branch) | `specs/09-dark-mode.spec.js` | ✅ shipped (Phase 3 stretch) |
 
 ## Authoring conventions
 

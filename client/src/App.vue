@@ -33,6 +33,7 @@
           </router-link>
         </nav>
         <LanguageSwitcher />
+        <ThemeToggle />
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
@@ -70,6 +71,7 @@ import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
 import TasksModal from './components/TasksModal.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import ThemeToggle from './components/ThemeToggle.vue'
 
 export default {
   name: 'App',
@@ -78,7 +80,8 @@ export default {
     ProfileMenu,
     ProfileDetailsModal,
     TasksModal,
-    LanguageSwitcher
+    LanguageSwitcher,
+    ThemeToggle
   },
   setup() {
     const { currentUser } = useAuth()
@@ -174,12 +177,49 @@ export default {
   box-sizing: border-box;
 }
 
+/* Theme tokens.
+ * Light is the default; [data-theme="dark"] (set on <html> by useTheme.js)
+ * overrides the same names. New components should consume these variables
+ * rather than hardcoded hex values. */
+:root {
+  --bg-app: #f8fafc;
+  --bg-elevated: #ffffff;
+  --bg-muted: #f1f5f9;
+  --ink-strong: #0f172a;
+  --ink: #1e293b;
+  --ink-soft: #64748b;
+  --border: #e2e8f0;
+  --border-soft: #f1f5f9;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg-app: #0b1120;
+  --bg-elevated: #111827;
+  --bg-muted: #1f2937;
+  --ink-strong: #f1f5f9;
+  --ink: #e2e8f0;
+  --ink-soft: #94a3b8;
+  --border: #1f2937;
+  --border-soft: #1e293b;
+  --accent: #60a5fa;
+  --accent-soft: #1e3a8a;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  background: var(--bg-app);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .app {
@@ -488,5 +528,117 @@ tbody tr:hover {
   border-radius: 8px;
   margin: 1rem 0;
   font-size: 0.938rem;
+}
+
+/* ---------------------------------------------------------------
+ * Dark mode overrides
+ *
+ * App.vue's <style> is intentionally non-scoped so these rules can
+ * reach component classes (e.g. `.card`, `.stat-card`, `.badge`,
+ * `.filters-bar`) without `:deep()` boilerplate per file. Per-component
+ * scoped styles still apply on top — these rules only override what
+ * needs to flip in dark mode.
+ *
+ * Coverage is intentionally limited to the high-traffic surfaces
+ * (banner, filter bar, cards, tables, badges, page headers). Long-tail
+ * surfaces remain on their original light palette in dark mode and are
+ * tracked as a Phase-3 polish follow-on.
+ * --------------------------------------------------------------- */
+:root[data-theme="dark"] .top-nav {
+  background: var(--bg-elevated);
+  border-bottom-color: var(--border);
+}
+
+:root[data-theme="dark"] .logo h1,
+:root[data-theme="dark"] .page-header h2,
+:root[data-theme="dark"] .card-title,
+:root[data-theme="dark"] .stat-value {
+  color: var(--ink-strong);
+}
+
+:root[data-theme="dark"] .subtitle,
+:root[data-theme="dark"] .page-header p,
+:root[data-theme="dark"] .stat-label {
+  color: var(--ink-soft);
+}
+
+:root[data-theme="dark"] .nav-tabs a {
+  color: var(--ink-soft);
+}
+
+:root[data-theme="dark"] .nav-tabs a:hover {
+  color: var(--ink-strong);
+  background: var(--bg-muted);
+}
+
+:root[data-theme="dark"] .nav-tabs a.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+:root[data-theme="dark"] .stat-card,
+:root[data-theme="dark"] .card {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .stat-card:hover {
+  border-color: var(--ink-soft);
+  box-shadow: var(--shadow-hover);
+}
+
+:root[data-theme="dark"] .card-header {
+  border-bottom-color: var(--border);
+}
+
+:root[data-theme="dark"] thead {
+  background: var(--bg-muted);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] th {
+  color: var(--ink-soft);
+}
+
+:root[data-theme="dark"] td {
+  color: var(--ink);
+  border-top-color: var(--border-soft);
+}
+
+:root[data-theme="dark"] tbody tr:hover {
+  background: var(--bg-muted);
+}
+
+:root[data-theme="dark"] .filters-bar,
+:root[data-theme="dark"] .filter-group select,
+:root[data-theme="dark"] .filter-select {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] .filter-group label {
+  color: var(--ink-soft);
+}
+
+:root[data-theme="dark"] input[type="text"],
+:root[data-theme="dark"] input[type="number"],
+:root[data-theme="dark"] input[type="search"] {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.7;
+}
+
+/* ThemeToggle button picks up its own vars via the scoped fallback chain */
+:root[data-theme="dark"] {
+  --toggle-border: var(--border);
+  --toggle-fg: var(--ink-soft);
+  --toggle-bg-hover: var(--bg-muted);
+  --toggle-fg-hover: var(--ink-strong);
 }
 </style>
