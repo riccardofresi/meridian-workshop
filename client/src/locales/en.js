@@ -6,7 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
-    companyName: 'Catalyst Components',
+    companyName: 'Meridian Components',
     subtitle: 'Inventory Management System'
   },
 
@@ -55,6 +55,7 @@ export default {
       daysDelayed: 'Days Delayed',
       priority: 'Priority',
       unitsShort: 'units short',
+      day: 'day',
       days: 'days'
     },
     topProducts: {
@@ -186,6 +187,31 @@ export default {
       trend: 'Trend',
       period: 'Period'
     }
+  },
+
+  // Reports view
+  reports: {
+    title: 'Performance Reports',
+    subtitle: 'View quarterly performance metrics and monthly trends',
+    loading: 'Loading reports...',
+    loadError: 'Failed to load reports',
+    quarterlyPerformance: 'Quarterly Performance',
+    monthlyRevenueTrend: 'Monthly Revenue Trend',
+    monthOverMonth: 'Month-over-Month Analysis',
+    quarter: 'Quarter',
+    totalOrders: 'Total Orders',
+    totalRevenue: 'Total Revenue',
+    avgOrderValue: 'Avg Order Value',
+    fulfillmentRate: 'Fulfillment Rate',
+    month: 'Month',
+    orders: 'Orders',
+    revenue: 'Revenue',
+    change: 'Change',
+    growthRate: 'Growth Rate',
+    totalRevenueYtd: 'Total Revenue (YTD)',
+    avgMonthlyRevenue: 'Avg Monthly Revenue',
+    totalOrdersYtd: 'Total Orders (YTD)',
+    bestPerformingQuarter: 'Best Performing Quarter'
   },
 
   // Filters

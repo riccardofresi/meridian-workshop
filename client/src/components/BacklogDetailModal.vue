@@ -36,7 +36,7 @@
               </div>
               <div class="summary-card warning">
                 <div class="summary-label">Days Delayed</div>
-                <div class="summary-value">{{ backlogItem.days_delayed }} days</div>
+                <div class="summary-value">{{ pluralize(backlogItem.days_delayed, t('dashboard.inventoryShortages.day'), t('dashboard.inventoryShortages.days')) }}</div>
               </div>
             </div>
 
@@ -87,8 +87,9 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
+import { pluralize } from '../utils/pluralize'
 
-const { translateProductName } = useI18n()
+const { t, translateProductName } = useI18n()
 
 const props = defineProps({
   isOpen: {

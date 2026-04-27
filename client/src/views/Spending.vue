@@ -56,8 +56,8 @@
             <div class="chart-area">
               <div v-for="month in monthlyRevenue" :key="month.month" class="bar-group-revenue">
                 <div class="revenue-bars">
-                  <div class="revenue-bar" :style="{ height: getRevenueBarHeight(month.revenue) + '%' }" :title="`Revenue: ${currencySymbol}${month.revenue.toLocaleString()}`"></div>
-                  <div class="cost-bar" :style="{ height: getRevenueBarHeight(month.costs) + '%' }" :title="`Costs: ${currencySymbol}${month.costs.toLocaleString()}`"></div>
+                  <div class="revenue-bar" :style="{ height: getRevenueBarHeight(month.revenue) + '%' }" :title="`Revenue: ${formatCurrency(month.revenue, currentCurrency)}`"></div>
+                  <div class="cost-bar" :style="{ height: getRevenueBarHeight(month.costs) + '%' }" :title="`Costs: ${formatCurrency(month.costs, currentCurrency)}`"></div>
                 </div>
                 <span class="bar-label">{{ translateMonth(month.month) }}</span>
               </div>
@@ -112,7 +112,7 @@
             <div v-for="category in categorySpending" :key="category.category" class="category-item">
               <div class="category-info">
                 <div class="category-name">{{ translateCategory(category.category) }}</div>
-                <div class="category-amount">{{ currencySymbol }}{{ category.amount.toLocaleString() }}</div>
+                <div class="category-amount">{{ formatCurrency(category.amount, currentCurrency) }}</div>
               </div>
               <div class="category-bar-container">
                 <div class="category-bar" :style="{ width: category.percentage + '%' }"></div>
@@ -147,14 +147,12 @@
                 <tr
                   v-for="transaction in recentTransactions"
                   :key="transaction.id"
-                  class="clickable-row"
-                  @click="handleTransactionClick(transaction)"
                 >
                   <td class="transaction-id">{{ transaction.id.toString().padStart(3, '0') }}</td>
                   <td class="transaction-description">{{ transaction.description }}</td>
                   <td class="transaction-vendor">{{ transaction.vendor }}</td>
                   <td class="transaction-date">{{ formatDateShort(transaction.date) }}</td>
-                  <td class="transaction-amount text-right">{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</td>
+                  <td class="transaction-amount text-right">{{ formatCurrency(transaction.amount, currentCurrency) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -447,11 +445,6 @@ export default {
       return spendingCategoryMap[category] || productCategoryMap[category] || category
     }
 
-    const handleTransactionClick = (transaction) => {
-      console.log('Transaction clicked:', transaction)
-      alert(`Transaction Details:\n\nID: ${transaction.id}\nDescription: ${transaction.description}\nVendor: ${transaction.vendor}\nDate: ${formatDateShort(transaction.date)}\nAmount: $${transaction.amount.toLocaleString()}`)
-    }
-
     const showCostDetail = (monthData) => {
       selectedCostData.value = monthData
       showCostModal.value = true
@@ -475,13 +468,13 @@ export default {
       maxRevenueValue,
       formatCurrency,
       currencySymbol,
+      currentCurrency,
       getBarHeight,
       getRevenueBarHeight,
       formatDate,
       formatDateShort,
       translateMonth,
       translateCategory,
-      handleTransactionClick,
       showCostModal,
       selectedCostData,
       showCostDetail,

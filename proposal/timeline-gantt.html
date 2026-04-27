@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Meridian Engagement — Gantt</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    color: #0f172a;
+    background: #ffffff;
+  }
+  header { border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+  .meta { color: #64748b; font-size: 0.9rem; }
+  .legend { color: #64748b; font-size: 0.85rem; margin-top: 1rem; }
+  footer { margin-top: 2rem; color: #64748b; font-size: 0.8rem; }
+  .mermaid { background: #f8fafc; padding: 1rem; border-radius: 6px; border: 1px solid #e2e8f0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Meridian Components — Inventory Dashboard Modernization</h1>
+  <div class="meta">RFP MC-2026-0417 · Engagement plan · 10 weeks · May 25 – Jul 31, 2026</div>
+</header>
+
+<div class="mermaid">
+gantt
+    title Engagement Plan (10 weeks)
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+    todayMarker off
+
+    section Phase 1 — Stabilize & Document
+    R4 Architecture discovery & draft  :a1, 2026-05-25, 10d
+    R4 Finalize & publish              :a2, after a1, 3d
+    R1 Audit & defect triage           :b1, 2026-06-01, 5d
+    R1 Remediation (priority defects)  :b2, after b1, 5d
+    R3 Playwright framework setup      :c1, 2026-05-25, 5d
+    R3 Smoke tests                     :c2, after c1, 5d
+    R3 Baseline coverage               :c3, after c2, 5d
+    Milestone M1                       :milestone, m1, 2026-06-12, 0d
+
+    section Phase 2 — Enable & Build
+    R2 Discovery (Tanaka + buyers)     :d1, 2026-06-15, 5d
+    R2 Build sprint 1                  :d2, after d1, 5d
+    R2 Build sprint 2 + iteration      :d3, after d2, 5d
+    R2 Validate (review session)       :d4, after d3, 3d
+    R3 Critical flows 1-4              :e1, 2026-06-15, 5d
+    R3 Critical flows 5-6              :e2, after e1, 5d
+    R3 Critical flow 7                 :e3, after e2, 5d
+    R3 Restocking flow                 :e4, after e3, 5d
+    D1 Co-design kickoff               :f1, 2026-06-15, 2d
+    D1 Mockups review                  :f2, 2026-07-06, 3d
+    Milestone M2                       :milestone, m2, 2026-07-10, 0d
+
+    section Phase 3 — Polish & Handoff
+    D1 Implementation                  :g1, 2026-07-13, 7d
+    D2 i18n extension                  :h1, 2026-07-13, 8d
+    D3 Dark mode (feature branch)      :i1, 2026-07-20, 5d
+    Deploy assist + runbook            :j1, 2026-07-27, 3d
+    Knowledge transfer to IT           :j2, 2026-07-27, 5d
+    Milestone M3                       :milestone, m3, 2026-07-31, 0d
+</div>
+
+<p class="legend">Bars indicate planned activity; black diamonds (◆) mark phase milestones (M1, M2, M3). Parallel tracks within a phase reflect deliberate concurrency to avoid idle time.</p>
+
+<footer>Generated for proposal package · See <code>03-timeline.md</code> for full narrative and milestone acceptance criteria.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    gantt: { barHeight: 20, fontSize: 12, leftPadding: 220 }
+  });
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
-    companyName: '触媒コンポーネンツ',
+    companyName: 'メリディアン・コンポーネンツ',
     subtitle: '在庫管理システム'
   },
 
@@ -55,6 +55,7 @@ export default {
       daysDelayed: '遅延日数',
       priority: '優先度',
       unitsShort: '単位不足',
+      day: '日',
       days: '日'
     },
     topProducts: {
@@ -186,6 +187,31 @@ export default {
       trend: 'トレンド',
       period: '期間'
     }
+  },
+
+  // Reports view
+  reports: {
+    title: 'パフォーマンスレポート',
+    subtitle: '四半期パフォーマンス指標と月次トレンドを表示',
+    loading: 'レポートを読み込み中...',
+    loadError: 'レポートの読み込みに失敗しました',
+    quarterlyPerformance: '四半期パフォーマンス',
+    monthlyRevenueTrend: '月次収益トレンド',
+    monthOverMonth: '前月比分析',
+    quarter: '四半期',
+    totalOrders: '合計注文数',
+    totalRevenue: '合計収益',
+    avgOrderValue: '平均注文金額',
+    fulfillmentRate: '達成率',
+    month: '月',
+    orders: '注文数',
+    revenue: '収益',
+    change: '変化',
+    growthRate: '成長率',
+    totalRevenueYtd: '累計収益 (YTD)',
+    avgMonthlyRevenue: '月平均収益',
+    totalOrdersYtd: '累計注文数 (YTD)',
+    bestPerformingQuarter: '最高業績四半期'
   },
 
   // Filters

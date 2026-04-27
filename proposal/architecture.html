@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Architecture Overview — Meridian Inventory Dashboard</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f8fafc;
+    --bg-code: #f1f5f9;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --line: #e2e8f0;
+    --accent: #0d9488;
+    --accent-soft: #ccfbf1;
+    --warn: #b45309;
+    --warn-soft: #fef3c7;
+    --danger: #b91c1c;
+    --danger-soft: #fee2e2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 2rem 5rem;
+  }
+
+  header.doc {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  header.doc .meta {
+    color: var(--ink-soft); font-size: 0.85rem;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+  header.doc h1 {
+    font-size: 2.4rem; font-weight: 700; line-height: 1.15;
+    letter-spacing: -0.02em; margin-bottom: 0.5rem;
+  }
+  header.doc .sub { color: var(--ink-soft); font-size: 1.1rem; }
+  header.doc .stamps {
+    margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;
+    color: var(--ink-soft); font-size: 0.85rem;
+  }
+  header.doc .stamps span { padding: 0.2rem 0.6rem; background: var(--bg-soft); border-radius: 3px; }
+
+  /* TOC */
+  nav.toc {
+    background: var(--bg-soft);
+    padding: 1.2rem 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 3rem;
+    border-left: 4px solid var(--accent);
+  }
+  nav.toc h2 {
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--accent); margin-bottom: 0.6rem;
+  }
+  nav.toc ol {
+    list-style: none; counter-reset: toc;
+    columns: 2; column-gap: 2rem;
+  }
+  nav.toc ol li {
+    counter-increment: toc; padding: 0.2rem 0;
+    break-inside: avoid;
+  }
+  nav.toc ol li::before {
+    content: counter(toc) ". "; color: var(--accent); font-weight: 600;
+  }
+  nav.toc a { color: var(--ink); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; color: var(--accent); }
+
+  /* Sections */
+  section { margin-bottom: 3.5rem; scroll-margin-top: 1rem; }
+  section h2 {
+    font-size: 1.7rem; font-weight: 700; line-height: 1.2;
+    letter-spacing: -0.01em; margin-bottom: 0.3rem;
+    padding-bottom: 0.6rem; border-bottom: 1px solid var(--line);
+  }
+  section h2 .num {
+    color: var(--accent); font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 1.1rem; margin-right: 0.6rem;
+  }
+  section .lede {
+    color: var(--ink-soft); font-size: 1.05rem;
+    margin: 0.5rem 0 1.5rem; max-width: 75ch;
+  }
+  section h3 {
+    font-size: 1.15rem; font-weight: 600; margin: 2rem 0 0.5rem;
+    color: var(--ink);
+  }
+  section p { margin-bottom: 1rem; max-width: 75ch; }
+  section ul { padding-left: 1.5rem; margin-bottom: 1rem; max-width: 75ch; }
+  section ul li { margin-bottom: 0.4rem; }
+  section strong { color: var(--ink); }
+
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--bg-code);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.92em;
+    color: var(--ink);
+  }
+  pre {
+    background: var(--bg-code); padding: 1rem 1.2rem;
+    border-radius: 6px; overflow-x: auto;
+    font-size: 0.85rem; line-height: 1.5;
+    margin: 1rem 0; max-width: 100%;
+  }
+  pre code { background: none; padding: 0; }
+
+  /* Tables */
+  table {
+    width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem;
+    font-size: 0.95rem;
+  }
+  th, td {
+    text-align: left; padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--line); vertical-align: top;
+  }
+  th {
+    background: var(--bg-soft); color: var(--ink);
+    font-weight: 600; font-size: 0.85rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  td code { font-size: 0.85em; }
+
+  /* Severity tags */
+  .sev {
+    display: inline-block; padding: 0.1rem 0.5rem; border-radius: 3px;
+    font-size: 0.78rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .sev.high { background: var(--danger-soft); color: var(--danger); }
+  .sev.med { background: var(--warn-soft); color: var(--warn); }
+  .sev.low { background: var(--bg-code); color: var(--ink-soft); }
+
+  /* SVG diagrams */
+  .diagram {
+    background: var(--bg-soft); padding: 1.5rem;
+    border-radius: 6px; margin: 1.5rem 0;
+    text-align: center;
+  }
+  .diagram svg { max-width: 100%; height: auto; }
+  .diagram .caption {
+    font-size: 0.85rem; color: var(--ink-soft);
+    margin-top: 0.8rem; font-style: italic;
+  }
+
+  /* Mermaid container */
+  .mermaid-wrap {
+    background: var(--bg-soft); padding: 1.5rem;
+    border-radius: 6px; margin: 1.5rem 0;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 1rem 1.2rem; border-radius: 0 6px 6px 0;
+    margin: 1.2rem 0; font-size: 0.95rem;
+  }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .callout.danger { border-left-color: var(--danger); background: var(--danger-soft); }
+  .callout strong { display: block; margin-bottom: 0.3rem; }
+
+  /* ADR cards */
+  .adr {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.2rem 1.4rem; margin-bottom: 1.2rem;
+  }
+  .adr h3 { margin-top: 0; }
+  .adr .adr-meta {
+    display: flex; gap: 1.5rem; font-size: 0.85rem;
+    color: var(--ink-soft); margin-bottom: 0.8rem;
+  }
+  .adr .adr-meta strong { color: var(--ink); }
+  .adr .status-proposed { color: var(--warn); font-weight: 600; }
+  .adr .status-accepted { color: var(--accent); font-weight: 600; }
+
+  footer.doc {
+    margin-top: 5rem; padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-soft); font-size: 0.85rem;
+  }
+
+  @media print {
+    body { background: white; }
+    .container { padding: 1rem; }
+    nav.toc, .callout, .adr, .diagram, .mermaid-wrap { break-inside: avoid; }
+    section { break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header class="doc">
+  <div class="meta">Architecture Overview · R4 Deliverable</div>
+  <h1>Meridian Inventory Dashboard</h1>
+  <div class="sub">Current-state architecture, patterns, and known technical debt</div>
+  <div class="stamps">
+    <span><strong>Engagement:</strong> RFP MC-2026-0417</span>
+    <span><strong>Phase:</strong> 1 — Stabilize &amp; Document</span>
+    <span><strong>Date:</strong> April 27, 2026 (W1)</span>
+    <span><strong>Status:</strong> Draft for review</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">System overview</a></li>
+    <li><a href="#topology">Topology &amp; processes</a></li>
+    <li><a href="#dataflow">Request lifecycle</a></li>
+    <li><a href="#api">API reference</a></li>
+    <li><a href="#frontend">Frontend patterns</a></li>
+    <li><a href="#backend">Backend patterns</a></li>
+    <li><a href="#data">Data layer</a></li>
+    <li><a href="#debt">Known technical debt</a></li>
+    <li><a href="#adrs">Architecture decisions</a></li>
+  </ol>
+</nav>
+
+<!-- 1. System overview -->
+<section id="overview">
+  <h2><span class="num">§1</span>System overview</h2>
+  <p class="lede">A two-tier web application: a Vue 3 single-page application talking via HTTPS-style HTTP to a FastAPI service backed by JSON files held in memory. No database, no authentication, no persistence — operations restart from the JSON files on every server boot.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- Browser -->
+      <rect x="40" y="60" width="180" height="160" rx="6" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+      <text x="130" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Browser</text>
+      <text x="130" y="103" text-anchor="middle" font-size="10" fill="#64748b">localhost:3000</text>
+      <rect x="60" y="120" width="140" height="40" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1"/>
+      <text x="130" y="138" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Vue 3 SPA</text>
+      <text x="130" y="152" text-anchor="middle" font-size="9" fill="#64748b">Composition API · Vite</text>
+      <rect x="60" y="170" width="140" height="32" rx="3" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+      <text x="130" y="190" text-anchor="middle" font-size="10" fill="#475569">Axios HTTP client</text>
+
+      <!-- arrow -->
+      <line x1="225" y1="140" x2="375" y2="140" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="300" y="132" text-anchor="middle" font-size="10" fill="#475569">JSON over HTTP</text>
+      <text x="300" y="155" text-anchor="middle" font-size="9" fill="#64748b">CORS: allow_origins=*</text>
+
+      <!-- API -->
+      <rect x="380" y="60" width="180" height="160" rx="6" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+      <text x="470" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">API service</text>
+      <text x="470" y="103" text-anchor="middle" font-size="10" fill="#64748b">localhost:8001</text>
+      <rect x="400" y="120" width="140" height="40" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1"/>
+      <text x="470" y="138" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">FastAPI app</text>
+      <text x="470" y="152" text-anchor="middle" font-size="9" fill="#64748b">Pydantic · Uvicorn</text>
+      <rect x="400" y="170" width="140" height="32" rx="3" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+      <text x="470" y="190" text-anchor="middle" font-size="10" fill="#475569">filter helpers (in-memory)</text>
+
+      <!-- arrow 2 -->
+      <line x1="565" y1="140" x2="715" y2="140" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="640" y="132" text-anchor="middle" font-size="10" fill="#475569">module import</text>
+      <text x="640" y="155" text-anchor="middle" font-size="9" fill="#64748b">at startup, in-memory</text>
+
+      <!-- Data -->
+      <rect x="720" y="60" width="160" height="160" rx="6" fill="#ffffff" stroke="#b45309" stroke-width="2" stroke-dasharray="4 3"/>
+      <text x="800" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Data layer</text>
+      <text x="800" y="103" text-anchor="middle" font-size="10" fill="#b45309" font-style="italic">mock — see §7</text>
+      <rect x="740" y="120" width="120" height="40" rx="3" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+      <text x="800" y="138" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">JSON files</text>
+      <text x="800" y="152" text-anchor="middle" font-size="9" fill="#64748b">server/data/*.json</text>
+      <rect x="740" y="170" width="120" height="32" rx="3" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+      <text x="800" y="190" text-anchor="middle" font-size="10" fill="#475569">mock_data.py loader</text>
+
+      <!-- arrow def -->
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+        </marker>
+      </defs>
+
+      <!-- title -->
+      <text x="450" y="35" text-anchor="middle" font-size="12" fill="#64748b" font-style="italic">High-level component view</text>
+    </svg>
+    <div class="caption">Three logical tiers; only two processes actually run (browser is the user's, server hosts API + data layer in one Python process).</div>
+  </div>
+
+  <h3>What is in scope of this engagement</h3>
+  <ul>
+    <li><strong>Frontend</strong> — all Vue components and composables (R1 fixes, R2 new view, D1/D2/D3)</li>
+    <li><strong>Backend API</strong> — endpoints supporting the above; minor data-shape changes only</li>
+    <li><strong>Test infrastructure</strong> — Playwright for E2E (R3), pytest for backend regression</li>
+  </ul>
+
+  <h3>What is explicitly out of scope</h3>
+  <ul>
+    <li>The data layer beyond JSON files — see §7 and clarifying question Q3 to procurement</li>
+    <li>Hosting and deployment infrastructure — supported once at handoff (W10), then operated by Meridian IT</li>
+    <li>Authentication, authorization, audit logging — not part of this RFP</li>
+  </ul>
+</section>
+
+<!-- 2. Topology -->
+<section id="topology">
+  <h2><span class="num">§2</span>Topology &amp; processes</h2>
+  <p class="lede">In development, two processes run side by side on the operator's machine. There is no separation between application server and data store.</p>
+
+  <table>
+    <thead>
+      <tr><th>Process</th><th>Port</th><th>Started by</th><th>Stops on</th><th>State</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Vite dev server</strong> (Vue 3)</td>
+        <td><code>3000</code></td>
+        <td><code>npm run dev</code> in <code>client/</code></td>
+        <td><code>Ctrl+C</code></td>
+        <td>Stateless — HMR rebuilds on file change</td>
+      </tr>
+      <tr>
+        <td><strong>FastAPI / Uvicorn</strong></td>
+        <td><code>8001</code></td>
+        <td><code>uv run python main.py</code> in <code>server/</code></td>
+        <td><code>Ctrl+C</code></td>
+        <td>In-memory only — restart reloads JSON</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Both are wrapped by <code>scripts/start.sh</code> for one-command boot. (Note: the script invokes <code>python3</code>; on Windows the binary is <code>python</code> — see §8 #DEBT-04.)</p>
+
+  <p>API documentation served live by FastAPI at <a href="http://localhost:8001/docs"><code>http://localhost:8001/docs</code></a> (Swagger UI) and <a href="http://localhost:8001/redoc"><code>http://localhost:8001/redoc</code></a>.</p>
+</section>
+
+<!-- 3. Data flow -->
+<section id="dataflow">
+  <h2><span class="num">§3</span>Request lifecycle — a typical filtered request</h2>
+  <p class="lede">The path from "operator clicks a filter" to "table re-renders" passes through five layers. Understanding it is necessary to read the R1 defects correctly: the Reports page short-circuits this path.</p>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as Operator
+    participant V as Vue View
+    participant F as useFilters (composable)
+    participant A as api.js (Axios)
+    participant S as FastAPI endpoint
+    participant D as mock_data (in-memory)
+
+    U->>V: Selects warehouse = "London"
+    V->>F: writes selectedLocation.value = "London"
+    Note over F: ref is module-scope —<br/>singleton, shared across views
+    F-->>V: reactive update fires
+    V->>V: watch(filters) triggers reload
+    V->>A: api.getInventory(getCurrentFilters())
+    A->>S: GET /api/inventory?warehouse=London
+    S->>S: apply_filters(items, warehouse=London, ...)
+    S->>D: read inventory_items
+    D-->>S: list
+    S-->>A: filtered list (Pydantic models)
+    A-->>V: data
+    V-->>U: re-render with filtered rows
+    </pre>
+  </div>
+
+  <div class="callout warn">
+    <strong>Where Reports breaks the pattern.</strong>
+    <code>views/Reports.vue</code> never imports <code>useFilters</code> (step 2 missing), bypasses <code>api.js</code> (step 5 calls Axios directly), passes no query parameters (step 6 sends no filters), and has no <code>watch</code> (step 4 never fires). The view fetches once on mount and is permanently disconnected from the filter state. See R1 defect log #01 and #04.
+  </div>
+</section>
+
+<!-- 4. API reference -->
+<section id="api">
+  <h2><span class="num">§4</span>API reference</h2>
+  <p class="lede">All endpoints are unversioned, prefixed with <code>/api/</code>, return JSON, and accept filters as query string parameters. <code>warehouse</code>, <code>category</code>, <code>status</code>, and <code>month</code> are the four canonical filter names; <code>'all'</code> is the sentinel for "no filter."</p>
+
+  <h3>Endpoints declared in <code>server/main.py</code></h3>
+  <table>
+    <thead>
+      <tr><th>Method &amp; Path</th><th>Filters accepted</th><th>Returns</th><th>Used by</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>GET /api/inventory</code></td><td>warehouse, category</td><td><code>List[InventoryItem]</code></td><td>Inventory</td></tr>
+      <tr><td><code>GET /api/inventory/{item_id}</code></td><td>—</td><td><code>InventoryItem</code></td><td>Inventory detail modal</td></tr>
+      <tr><td><code>GET /api/orders</code></td><td>warehouse, category, status, month</td><td><code>List[Order]</code></td><td>Orders</td></tr>
+      <tr><td><code>GET /api/orders/{order_id}</code></td><td>—</td><td><code>Order</code></td><td>Orders detail</td></tr>
+      <tr><td><code>GET /api/demand</code></td><td>—</td><td><code>List[DemandForecast]</code></td><td>Demand</td></tr>
+      <tr><td><code>GET /api/backlog</code></td><td>—</td><td><code>List[BacklogItem]</code></td><td>Backlog (view not routed — see §8)</td></tr>
+      <tr><td><code>GET /api/dashboard/summary</code></td><td>warehouse, category, status, month</td><td>Aggregated KPIs</td><td>Dashboard</td></tr>
+      <tr><td><code>GET /api/spending/summary</code></td><td>warehouse, category, month</td><td>Spending totals</td><td>Spending</td></tr>
+      <tr><td><code>GET /api/spending/monthly</code></td><td>warehouse, category</td><td>Monthly spending series</td><td>Spending chart</td></tr>
+      <tr><td><code>GET /api/spending/categories</code></td><td>warehouse, month</td><td>Spending by category</td><td>Spending breakdown</td></tr>
+      <tr><td><code>GET /api/spending/transactions</code></td><td>warehouse, category, month</td><td>Recent transactions</td><td>Spending detail</td></tr>
+      <tr><td><code>GET /api/reports/quarterly</code></td><td>(none consumed)</td><td>Quarterly aggregates</td><td>Reports — <em>does not pass filters</em></td></tr>
+      <tr><td><code>GET /api/reports/monthly-trends</code></td><td>(none consumed)</td><td>Monthly trends</td><td>Reports — <em>does not pass filters</em></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Endpoints called by client but missing on server</h3>
+  <table>
+    <thead><tr><th>Endpoint</th><th>Called from</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>GET / POST / DELETE / PATCH /api/tasks</code></td>
+        <td><code>client/src/api.js:77–95</code> · <code>App.vue</code></td>
+        <td><span class="sev high">404</span> Backend never declared</td>
+      </tr>
+      <tr>
+        <td><code>GET / POST /api/purchase-orders</code></td>
+        <td><code>client/src/api.js:97–104</code></td>
+        <td><span class="sev high">404</span> Backend never declared</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Both are referenced in R1 defect log #02 and #03. Disposition: confirm with R. Tanaka; <code>/api/purchase-orders</code> is naturally absorbed into R2 (Restocking) which will need it.</p>
+</section>
+
+<!-- 5. Frontend patterns -->
+<section id="frontend">
+  <h2><span class="num">§5</span>Frontend patterns</h2>
+
+  <h3>Routing</h3>
+  <p>Vue Router 4 with <code>createWebHistory</code>. Six routes registered in <code>client/src/main.js</code>:</p>
+  <pre><code>/           → Dashboard
+/inventory  → Inventory
+/orders     → Orders
+/demand     → Demand
+/spending   → Spending
+/reports    → Reports</code></pre>
+  <div class="callout danger">
+    <strong>Backlog is not routed.</strong>
+    <code>views/Backlog.vue</code> exists and the backend exposes <code>/api/backlog</code>, but no route is registered for <code>/backlog</code>. The view is dead code from a routing perspective unless added to <code>main.js</code>. Filed as #DEBT-05 and a candidate question for Operations: was this intended to be a sub-page or surfaced from the Dashboard?
+  </div>
+
+  <h3>State management — composables, not Pinia/Vuex</h3>
+  <p>Three composables in <code>client/src/composables/</code>:</p>
+  <ul>
+    <li><code>useFilters.js</code> — <strong>singleton</strong>: refs declared at module scope, shared across all consumers. Filter state persists across navigation by design (see §3).</li>
+    <li><code>useAuth.js</code> — current user profile and mock tasks. Consumed by App.vue and ProfileMenu.</li>
+    <li><code>useI18n.js</code> — translation lookup, English and Japanese locales in <code>locales/en.js</code> &amp; <code>locales/ja.js</code>.</li>
+  </ul>
+
+  <h3>API access</h3>
+  <p>Centralized in <code>client/src/api.js</code> as a single <code>api</code> object. All views <em>except Reports</em> route HTTP through this module.</p>
+
+  <h3>Component organization</h3>
+  <pre><code>views/        page-level components, one per route
+components/   shared widgets (FilterBar, modals, ProfileMenu, …)
+composables/  shared reactive state &amp; logic
+locales/      i18n catalog
+utils/        formatters (currency.js)</code></pre>
+
+  <h3>Conventions documented in <code>client/CLAUDE.md</code></h3>
+  <ul>
+    <li>Composition API throughout — Options API discouraged</li>
+    <li><code>v-for</code> keys must be stable IDs, never array index</li>
+    <li>Heavy computation in <code>computed</code>, not in template-called methods</li>
+    <li>Loading / error / data tri-state on every async view</li>
+    <li>Date strings parsed only after <code>!isNaN(d.getTime())</code></li>
+  </ul>
+  <p>Adherence is high across the codebase; the documented exceptions are catalogued in §8.</p>
+</section>
+
+<!-- 6. Backend patterns -->
+<section id="backend">
+  <h2><span class="num">§6</span>Backend patterns</h2>
+
+  <h3>Application structure</h3>
+  <p>One file: <code>server/main.py</code>. All endpoints, Pydantic models, helper functions, and CORS middleware live in a single module. Mock data loaded from <code>server/mock_data.py</code> at import time.</p>
+
+  <h3>Filter helpers</h3>
+  <p>Two utilities centralize filtering logic so endpoints stay one-liners:</p>
+  <pre><code>filter_by_month(items, month)   # supports "2025-01" and "Q1-2025"
+apply_filters(items, warehouse, category, status)</code></pre>
+  <p>The <code>QUARTER_MAP</code> dict at the top of <code>main.py</code> hardcodes 2025 quarters. New years require manual extension — flagged as #DEBT-06.</p>
+
+  <h3>Pydantic models</h3>
+  <p>One model per resource (<code>InventoryItem</code>, <code>Order</code>, <code>DemandForecast</code>, <code>BacklogItem</code>). Used as <code>response_model</code> on most GET routes for automatic validation and OpenAPI schema generation.</p>
+
+  <h3>CORS</h3>
+  <p>Wide-open in development (<code>allow_origins=["*"]</code>). Acceptable for the engagement; a hardening step before any non-local deployment.</p>
+</section>
+
+<!-- 7. Data layer -->
+<section id="data">
+  <h2><span class="num">§7</span>Data layer</h2>
+  <p class="lede">The most uncertain part of the architecture. The dev environment runs entirely on JSON files. Whether production is the same or hides a real database is the subject of clarifying question Q3 to procurement.</p>
+
+  <h3>What is visible in the codebase</h3>
+  <table>
+    <thead><tr><th>JSON file</th><th>Loaded as</th><th>Used by</th></tr></thead>
+    <tbody>
+      <tr><td><code>server/data/inventory.json</code></td><td><code>inventory_items</code></td><td><code>/api/inventory*</code></td></tr>
+      <tr><td><code>server/data/orders.json</code></td><td><code>orders</code></td><td><code>/api/orders*</code>, <code>/api/dashboard/summary</code></td></tr>
+      <tr><td><code>server/data/demand_forecasts.json</code></td><td><code>demand_forecasts</code></td><td><code>/api/demand</code></td></tr>
+      <tr><td><code>server/data/backlog_items.json</code></td><td><code>backlog_items</code></td><td><code>/api/backlog</code></td></tr>
+      <tr><td><code>server/data/spending*.json</code></td><td>multiple</td><td><code>/api/spending/*</code></td></tr>
+      <tr><td><code>server/data/purchase_orders.json</code></td><td><code>purchase_orders</code></td><td><em>not yet exposed</em></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Implications</h3>
+  <ul>
+    <li><strong>No persistence.</strong> Restart reloads from disk; in-flight changes during a session are lost.</li>
+    <li><strong>No transactions.</strong> Concurrent writes from two clients (if it ever supported writes) would race silently.</li>
+    <li><strong>No indexes.</strong> Filter helpers scan in Python; fine for the current dataset (&lt;10K items per file), wouldn't survive 10× growth.</li>
+    <li><strong>Tests written against this data layer pass against this data layer.</strong> If production has a real DB with different consistency, R3 tests need parameterization.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Action.</strong> Awaiting Q3 answer from procurement. Default assumption (per <code>proposal/clarifying-questions.md</code>): JSON-file layer is also production. Any divergence handled as a contract addendum.
+  </div>
+</section>
+
+<!-- 8. Technical debt -->
+<section id="debt">
+  <h2><span class="num">§8</span>Known technical debt</h2>
+  <p class="lede">Catalogued explicitly. Most items overlap with the R1 defect log; debt entries here are <em>orientation</em> for future-Meridian, not a fix list for this engagement.</p>
+
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Item</th><th>Severity</th><th>Disposition</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>#DEBT-01</code></td>
+        <td>Reports.vue uses Options API in a Composition-API project</td>
+        <td><span class="sev high">High</span></td>
+        <td>Fixed in W2 as part of R1 (defect log #04)</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-02</code></td>
+        <td>Reports.vue + Backlog.vue lack <code>useI18n</code> integration; English strings hardcoded</td>
+        <td><span class="sev med">Medium</span></td>
+        <td>Reports fixed in W2; Backlog rolled into D2 if selected</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-03</code></td>
+        <td>Two client-only API endpoints (<code>/api/tasks</code>, <code>/api/purchase-orders</code>) with no backend implementation</td>
+        <td><span class="sev high">High</span></td>
+        <td>Tasks: confirm intent with Tanaka W1 · POs: rolled into R2 build</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-04</code></td>
+        <td><code>scripts/start.sh</code> calls <code>python3</code>; fails on systems where the binary is <code>python</code> (Windows default)</td>
+        <td><span class="sev low">Low</span></td>
+        <td>One-line fix in W3 cleanup</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-05</code></td>
+        <td>Backlog.vue exists but no route is registered in the router</td>
+        <td><span class="sev med">Medium</span></td>
+        <td>Confirm intent with Operations W1 (sub-page? Dashboard surface?). Add route or remove view.</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-06</code></td>
+        <td><code>QUARTER_MAP</code> hardcoded to 2025 quarters; rolling year requires manual extension</td>
+        <td><span class="sev low">Low</span></td>
+        <td>Generate dynamically from order dates; trivial refactor in W3</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-07</code></td>
+        <td>14 stray <code>console.log</code> calls in Reports.vue, including in hot path (<code>formatNumber</code> per cell)</td>
+        <td><span class="sev low">Low</span></td>
+        <td>Removed during R1 rewrite</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-08</code></td>
+        <td>Filter persistence across navigation is <em>by design</em> (singleton refs in <code>useFilters</code>) — UX intent unclear</td>
+        <td><span class="sev med">Medium</span></td>
+        <td>Surface to Tanaka in W1 working session — three plausible answers documented in defect log</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-09</code></td>
+        <td>Server is single-file <code>main.py</code>; will not scale past current resource set</td>
+        <td><span class="sev low">Low</span></td>
+        <td>Out of scope for this engagement; server CLAUDE.md already sketches modular structure</td>
+      </tr>
+      <tr>
+        <td><code>#DEBT-10</code></td>
+        <td>No backend persistence; restarts wipe in-session state. Production design unconfirmed (Q3)</td>
+        <td><span class="sev high">High</span></td>
+        <td>Pending procurement answer; possible addendum</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Total:</strong> 10 catalogued debt items. <strong>3 high-severity</strong> are addressed inside this engagement (#DEBT-01, #DEBT-03, #DEBT-10 partial). The remainder are surfaced for Meridian's future planning.</p>
+</section>
+
+<!-- 9. ADRs -->
+<section id="adrs">
+  <h2><span class="num">§9</span>Architecture decisions</h2>
+  <p class="lede">Lightweight ADRs (Architecture Decision Records) for choices that will be made or are being made during this engagement. One per consequential decision; updated as the engagement proceeds.</p>
+
+  <div class="adr">
+    <h3>ADR-001 — E2E test framework: Playwright</h3>
+    <div class="adr-meta">
+      <span><strong>Status:</strong> <span class="status-accepted">Accepted</span></span>
+      <span><strong>Date:</strong> 2026-04-27</span>
+      <span><strong>Phase:</strong> 1, W1</span>
+    </div>
+    <p><strong>Context.</strong> R3 requires E2E coverage on critical user flows. The <code>.mcp.json</code> in this repo already configures a Playwright MCP server, signaling that adoption was at least considered by the previous vendor.</p>
+    <p><strong>Decision.</strong> Adopt Playwright. Page-object pattern, deterministic assertions, CI-ready.</p>
+    <p><strong>Consequences.</strong> Tests written against the dev environment (JSON data) — see §7 caveat. Test list (8 critical flows) defined in <code>proposal/02-technical-approach.md</code> §R3, refined with IT in W1.</p>
+  </div>
+
+  <div class="adr">
+    <h3>ADR-002 — Reports remediation strategy: full rewrite, not incremental patching</h3>
+    <div class="adr-meta">
+      <span><strong>Status:</strong> <span class="status-proposed">Proposed</span></span>
+      <span><strong>Date:</strong> 2026-04-27</span>
+      <span><strong>Phase:</strong> 1, W2</span>
+    </div>
+    <p><strong>Context.</strong> Reports.vue exhibits 7+ defects whose root cause is structural (Options API, no composable integration, no centralized API access). Patching them individually would leave the structural problem untouched.</p>
+    <p><strong>Decision.</strong> Rewrite the <code>&lt;script&gt;</code> block as Composition API in a single change, integrating <code>useFilters</code>, <code>useI18n</code>, and <code>api.js</code>. Template adjustments (keys, computed-derived data) follow.</p>
+    <p><strong>Consequences.</strong> Larger diff than spot fixes; mitigated by the new Playwright tests in R3 covering the Reports page (flow #4 in our test plan) which give regression confidence on the rewrite. Risk is contained — Reports is one view.</p>
+  </div>
+
+  <div class="adr">
+    <h3>ADR-003 — Restocking recommendation logic: (s, S) policy with newsvendor calibration</h3>
+    <div class="adr-meta">
+      <span><strong>Status:</strong> <span class="status-proposed">Proposed</span></span>
+      <span><strong>Date:</strong> 2026-04-27</span>
+      <span><strong>Phase:</strong> 2, W4 — to be confirmed in Discovery</span>
+    </div>
+    <p><strong>Context.</strong> R2 requires a recommendation engine. We must commit to a quantitative framework before discovery so Tanaka and her team can react to a concrete proposal, not a blank page.</p>
+    <p><strong>Decision.</strong> Reorder point <code>s = μ_LT + z·σ_LT</code> from forecast and target service level; order-up-to <code>S</code> from forecast horizon and budget. Reference: Silver, Pyke &amp; Thomas, <em>Inventory and Production Management in Supply Chains</em>, 4th ed., 2017.</p>
+    <p><strong>Consequences.</strong> Operations must agree to the service-level parameter (typical 95–98% for industrial distribution). Operator override is a first-class feature, not an afterthought.</p>
+  </div>
+
+  <div class="adr">
+    <h3>ADR-004 — Filter persistence across navigation: pending Operations decision</h3>
+    <div class="adr-meta">
+      <span><strong>Status:</strong> <span class="status-proposed">Pending</span></span>
+      <span><strong>Date:</strong> 2026-04-27</span>
+      <span><strong>Phase:</strong> 1, W1 — Tanaka working session</span>
+    </div>
+    <p><strong>Context.</strong> <code>useFilters</code> uses a module-scope singleton. Filter state persists across navigation. The previous vendor's intent is unrecoverable.</p>
+    <p><strong>Decision.</strong> Defer to R. Tanaka in the W1 working session. Three options on the table: confirm as-is, reset on navigation, or surface active filters in the header with a one-click reset.</p>
+    <p><strong>Consequences.</strong> The chosen path is small in implementation — at most a refactor of <code>useFilters.js</code> plus a status indicator. Clarification matters more than the code.</p>
+  </div>
+
+  <div class="adr">
+    <h3>ADR-005 — Production data layer: assumed JSON until refuted</h3>
+    <div class="adr-meta">
+      <span><strong>Status:</strong> <span class="status-proposed">Provisional</span></span>
+      <span><strong>Date:</strong> 2026-04-27</span>
+      <span><strong>Phase:</strong> 1, pending Q3 from procurement</span>
+    </div>
+    <p><strong>Context.</strong> The codebase has no database. Production may or may not have one — Q3 in <code>proposal/clarifying-questions.md</code>.</p>
+    <p><strong>Decision.</strong> Until told otherwise, assume the JSON-file layer is also production. R3 tests, R4 documentation, and pricing reflect this. Any divergence triggers a contract addendum, not silent absorption.</p>
+    <p><strong>Consequences.</strong> If a database is revealed late, schedule extends 1–2 weeks (per <code>03-timeline.md</code>) and pricing is re-scoped.</p>
+  </div>
+</section>
+
+<footer class="doc">
+  <p>Architecture Overview · Meridian Components Inventory Dashboard · R4 deliverable<br/>
+  Engagement RFP MC-2026-0417 · Version 1.0 — Phase 1 Week 1 · 2026-04-27<br/>
+  Maintained by the engagement team; updated as Phase 2 and Phase 3 changes land.</p>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    sequence: { actorMargin: 60, boxMargin: 10, mirrorActors: false }
+  });
+</script>
+
+</body>
+</html>
