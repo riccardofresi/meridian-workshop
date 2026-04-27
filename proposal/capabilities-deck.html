@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Capabilities — Meridian Components RFP MC-2026-0417</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f8fafc;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --line: #e2e8f0;
+    --accent: #0d9488;
+    --accent-soft: #ccfbf1;
+    --warn: #b45309;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    color: var(--ink);
+    background: var(--bg-soft);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6vh 8vw;
+    background: var(--bg);
+    animation: fade .25s ease;
+  }
+  .slide.active { display: flex; }
+
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* Progress bar */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: var(--accent);
+    transition: width .3s ease;
+    z-index: 100;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed; bottom: 1.4rem; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 2rem;
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    z-index: 100;
+  }
+  .footer .nav {
+    display: flex; gap: 0.5rem;
+  }
+  .footer button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    padding: 0.3rem 0.7rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .footer button:hover { background: var(--bg-soft); border-color: var(--ink-soft); }
+
+  /* Typography */
+  h1 {
+    font-size: 3.2rem; font-weight: 700; line-height: 1.1;
+    letter-spacing: -0.02em; margin-bottom: 1rem;
+  }
+  h2 {
+    font-size: 2.2rem; font-weight: 600; line-height: 1.2;
+    letter-spacing: -0.01em; margin-bottom: 1.5rem;
+  }
+  h3 {
+    font-size: 1.1rem; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 0.6rem;
+  }
+  p, li { font-size: 1.15rem; line-height: 1.55; color: var(--ink-soft); }
+  p.lede { font-size: 1.4rem; color: var(--ink); max-width: 60ch; }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { list-style: none; padding: 0; }
+  ul li {
+    padding-left: 1.2rem; position: relative; margin-bottom: 0.8rem;
+  }
+  ul li::before {
+    content: "—"; position: absolute; left: 0; color: var(--accent);
+  }
+
+  /* Title slide */
+  .title-slide {
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 100%);
+  }
+  .title-slide .meta {
+    color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 2rem;
+    text-transform: uppercase; letter-spacing: 0.12em;
+  }
+  .title-slide h1 { font-size: 3.6rem; margin-bottom: 1.5rem; }
+  .title-slide .firm {
+    margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+    color: var(--ink-soft); font-size: 0.95rem;
+  }
+
+  /* Pillar grid */
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem; }
+  .pillar {
+    padding: 1.5rem; background: var(--bg-soft); border-left: 4px solid var(--accent);
+    border-radius: 4px;
+  }
+  .pillar h4 { font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--ink); }
+  .pillar .req { font-size: 0.8rem; color: var(--accent); font-weight: 600; letter-spacing: 0.05em; }
+  .pillar p { font-size: 1rem; margin-top: 0.5rem; }
+
+  /* Two-column */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 1rem; }
+  .two-col > div h3 { margin-bottom: 0.8rem; }
+
+  /* Timeline strip */
+  .phase-strip {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem;
+  }
+  .phase {
+    padding: 1.2rem; background: var(--bg-soft); border-radius: 4px;
+    border-top: 3px solid var(--accent);
+  }
+  .phase .weeks { font-size: 0.8rem; color: var(--accent); font-weight: 600; letter-spacing: 0.05em; }
+  .phase h4 { font-size: 1.1rem; margin: 0.4rem 0; color: var(--ink); }
+  .phase p { font-size: 0.95rem; }
+
+  /* Pricing table */
+  table.pricing {
+    width: 100%; max-width: 720px; margin-top: 1.5rem;
+    border-collapse: collapse;
+  }
+  table.pricing td {
+    padding: 0.7rem 1rem; border-bottom: 1px solid var(--line);
+    font-size: 1.05rem; color: var(--ink-soft);
+  }
+  table.pricing td.amt { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600; }
+  table.pricing tr.total td { border-bottom: none; border-top: 2px solid var(--ink); padding-top: 1rem; font-size: 1.2rem; color: var(--ink); font-weight: 600; }
+
+  /* Quote */
+  blockquote {
+    border-left: 4px solid var(--accent);
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    font-size: 1.3rem; color: var(--ink); font-weight: 500;
+    max-width: 60ch; line-height: 1.5;
+    margin: 1.5rem 0;
+  }
+
+  /* Closing slide */
+  .closing { text-align: center; align-items: center; }
+  .closing h1 { font-size: 4rem; margin-bottom: 0.5rem; }
+  .closing p { font-size: 1.3rem; }
+
+  /* Pillar icons */
+  .pillar .icon {
+    width: 36px; height: 36px; color: var(--accent);
+    margin-bottom: 0.6rem; display: block;
+  }
+
+  /* SVG chart container */
+  .chart {
+    margin: 1rem 0; max-width: 720px;
+  }
+  .chart svg { width: 100%; height: auto; display: block; }
+
+  /* Mini Gantt */
+  .gantt-mini {
+    margin-top: 1.5rem; max-width: 100%;
+  }
+  .gantt-mini svg { width: 100%; height: auto; display: block; }
+
+  /* Pricing bar */
+  .price-bar {
+    display: flex; height: 38px; border-radius: 4px; overflow: hidden;
+    margin: 1.5rem 0 0.5rem; max-width: 720px;
+    border: 1px solid var(--line);
+  }
+  .price-bar .seg {
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 0.85rem; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap; padding: 0 0.5rem;
+  }
+  .price-bar .seg.fix { background: #0d9488; }
+  .price-bar .seg.tm { background: #14b8a6; }
+  .price-bar .seg.des { background: #5eead4; color: var(--ink); }
+  .price-legend {
+    display: flex; gap: 1.2rem; flex-wrap: wrap;
+    margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--ink-soft);
+  }
+  .price-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 0.4rem; vertical-align: middle; }
+
+  /* Print / fallback layout */
+  @media print {
+    body { background: white; overflow: visible; }
+    .deck, .slide { position: static; width: 100%; height: auto; }
+    .slide { display: flex !important; page-break-after: always; min-height: 100vh; }
+    .footer, .progress { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+<!-- Slide 1: Title -->
+<section class="slide title-slide">
+  <div class="meta">Capabilities Presentation · April 2026</div>
+  <h1>Restoring momentum<br/>at Meridian Components</h1>
+  <p class="lede">Inventory Dashboard Modernization · RFP MC-2026-0417</p>
+  <div class="firm">[ Firm name ] — bid team</div>
+</section>
+
+<!-- Slide 2: Our reading -->
+<section class="slide">
+  <h3>Our reading of the brief</h3>
+  <h2>The cost is not technical.<br/>It's operational momentum that has stalled.</h2>
+  <ul>
+    <li>A Reports module the previous vendor never closed out</li>
+    <li>A backlog of operator requests waiting on a system Operations cannot fully trust</li>
+    <li>No automated test coverage — IT has been unable to confidently approve change</li>
+  </ul>
+</section>
+
+<!-- Slide 3: Three pillars -->
+<section class="slide">
+  <h3>Our approach</h3>
+  <h2>Three pillars, sequenced deliberately</h2>
+  <div class="pillars">
+    <div class="pillar">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      <div class="req">R1</div>
+      <h4>Stabilize</h4>
+      <p>Audit and remediate the known and latent defects in the Reports module so the team can trust what they see today.</p>
+    </div>
+    <div class="pillar">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+      <div class="req">R3 + R4</div>
+      <h4>Enable</h4>
+      <p>Establish browser test coverage and current-state architecture documentation. Together they unblock every future change.</p>
+    </div>
+    <div class="pillar">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      <div class="req">R2</div>
+      <h4>Evolve</h4>
+      <p>Design and build the Restocking capability with operations, not for them — so it reflects how purchasing actually happens.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 4: Stabilize -->
+<section class="slide">
+  <h3>Pillar 1 — Stabilize · R1</h3>
+  <h2>Reports module remediation</h2>
+  <div class="two-col">
+    <div>
+      <h3>Approach</h3>
+      <ul>
+        <li>Reproduce and classify each of the eight logged defects</li>
+        <li>Audit Reports page and API surface for latent issues</li>
+        <li>Remediate priority-first; pair every fix with a regression test</li>
+        <li>Definition of Done agreed with operations, not assumed</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Deliverable</h3>
+      <ul>
+        <li>Remediated Reports module</li>
+        <li>Defect log with disposition</li>
+        <li>Regression coverage in the R3 suite</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 5: Enable -->
+<section class="slide">
+  <h3>Pillar 2 — Enable · R3 + R4</h3>
+  <h2>Coverage and documentation IT can rely on</h2>
+  <div class="two-col">
+    <div>
+      <h3>R3 — Playwright E2E</h3>
+      <ul>
+        <li>8 critical user flows proposed by us, refined with IT in week 1</li>
+        <li>Page-object pattern, deterministic assertions, CI-ready</li>
+        <li>README so IT can run the suite without us</li>
+      </ul>
+    </div>
+    <div>
+      <h3>R4 — Architecture</h3>
+      <ul>
+        <li>System overview, data flow, API reference, frontend patterns</li>
+        <li>Catalogued technical debt — no surprises, no silent absorption</li>
+        <li>Lightweight ADRs for every consequential decision</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 6: Evolve -->
+<section class="slide">
+  <h3>Pillar 3 — Evolve · R2</h3>
+  <h2>Restocking, co-designed with operations</h2>
+  <p style="max-width: 65ch; margin-bottom: 0.5rem;">Anchored in the standard inventory framework — <strong>(s, S) policy with newsvendor service-level calibration</strong> (Silver, Pyke &amp; Thomas, 2017) — and shaped by VP Operations and her buyers in three stages.</p>
+  <div class="chart">
+    <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- axes -->
+      <line x1="50" y1="20" x2="50" y2="180" stroke="#94a3b8" stroke-width="1"/>
+      <line x1="50" y1="180" x2="700" y2="180" stroke="#94a3b8" stroke-width="1"/>
+      <text x="46" y="14" text-anchor="end" font-size="11" fill="#64748b">Inventory level</text>
+      <text x="700" y="198" text-anchor="end" font-size="11" fill="#64748b">Time →</text>
+
+      <!-- S line (order-up-to) -->
+      <line x1="50" y1="40" x2="700" y2="40" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <text x="58" y="34" font-size="11" fill="#0d9488" font-weight="600">S — order-up-to level</text>
+
+      <!-- s line (reorder point) -->
+      <line x1="50" y1="130" x2="700" y2="130" stroke="#b45309" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <text x="58" y="124" font-size="11" fill="#b45309" font-weight="600">s — reorder point  (s = μ_LT + z·σ_LT)</text>
+
+      <!-- safety stock band -->
+      <rect x="50" y="130" width="650" height="50" fill="#fef3c7" opacity="0.4"/>
+      <text x="694" y="170" text-anchor="end" font-size="10" fill="#92400e" font-style="italic">safety stock</text>
+
+      <!-- sawtooth inventory line -->
+      <polyline points="50,40 220,130 220,40 390,130 390,40 560,130 560,40 700,90"
+        fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linejoin="round"/>
+
+      <!-- order trigger arrows -->
+      <g font-size="10" fill="#64748b">
+        <text x="220" y="200" text-anchor="middle">↑ order placed</text>
+        <text x="390" y="200" text-anchor="middle">↑ order placed</text>
+        <text x="560" y="200" text-anchor="middle">↑ order placed</text>
+      </g>
+
+      <!-- demand label -->
+      <text x="135" y="92" font-size="10" fill="#64748b" font-style="italic" transform="rotate(28 135 92)">demand depletes</text>
+    </svg>
+  </div>
+  <div class="phase-strip">
+    <div class="phase">
+      <div class="weeks">W4 — Discovery</div>
+      <h4>Listen first</h4>
+      <p>Working sessions with Tanaka and 2–3 buyers. Capture the heuristics they already use.</p>
+    </div>
+    <div class="phase">
+      <div class="weeks">W5–W6 — Build</div>
+      <h4>Iterate weekly</h4>
+      <p>Weekly demo, course correct, ship behind a feature flag.</p>
+    </div>
+    <div class="phase">
+      <div class="weeks">W7 — Validate</div>
+      <h4>Compare to judgement</h4>
+      <p>Recommendations on a sample of SKUs; operations flags agreement, disagreement, or insight.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 7: Desired items -->
+<section class="slide">
+  <h3>Desired items — co-designed, optional</h3>
+  <h2>D1 · D2 · D3 sized as standalone increments</h2>
+  <ul>
+    <li><strong>D1 — UI modernization.</strong> Refresh on the existing token system, co-designed with operations. Not a rewrite to an external design system.</li>
+    <li><strong>D2 — Internationalization.</strong> Complete the Japanese locale across all views; the i18n infrastructure is already in place.</li>
+    <li><strong>D3 — Dark mode.</strong> Operator-selectable theme via existing CSS custom properties — designed for low-light warehouse stations.</li>
+  </ul>
+  <p style="margin-top: 1.5rem;">Each priced separately, each can be selected, deferred, or declined independently.</p>
+</section>
+
+<!-- Slide 8: Timeline -->
+<section class="slide">
+  <h3>Timeline</h3>
+  <h2>10 weeks · three phases · three milestones</h2>
+  <div class="gantt-mini">
+    <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Week headers W1..W10 -->
+      <g font-size="11" fill="#64748b" font-weight="600">
+        <text x="180" y="16" text-anchor="middle">W1</text>
+        <text x="240" y="16" text-anchor="middle">W2</text>
+        <text x="300" y="16" text-anchor="middle">W3</text>
+        <text x="360" y="16" text-anchor="middle">W4</text>
+        <text x="420" y="16" text-anchor="middle">W5</text>
+        <text x="480" y="16" text-anchor="middle">W6</text>
+        <text x="540" y="16" text-anchor="middle">W7</text>
+        <text x="600" y="16" text-anchor="middle">W8</text>
+        <text x="660" y="16" text-anchor="middle">W9</text>
+        <text x="720" y="16" text-anchor="middle">W10</text>
+      </g>
+
+      <!-- vertical week gridlines -->
+      <g stroke="#e2e8f0" stroke-width="1">
+        <line x1="150" y1="22" x2="150" y2="300"/>
+        <line x1="210" y1="22" x2="210" y2="300"/>
+        <line x1="270" y1="22" x2="270" y2="300"/>
+        <line x1="330" y1="22" x2="330" y2="300"/>
+        <line x1="390" y1="22" x2="390" y2="300"/>
+        <line x1="450" y1="22" x2="450" y2="300"/>
+        <line x1="510" y1="22" x2="510" y2="300"/>
+        <line x1="570" y1="22" x2="570" y2="300"/>
+        <line x1="630" y1="22" x2="630" y2="300"/>
+        <line x1="690" y1="22" x2="690" y2="300"/>
+        <line x1="750" y1="22" x2="750" y2="300"/>
+      </g>
+
+      <!-- Phase labels (left column) -->
+      <g font-size="11" fill="#0d9488" font-weight="700">
+        <text x="10" y="50">PHASE 1</text>
+        <text x="10" y="160">PHASE 2</text>
+        <text x="10" y="265">PHASE 3</text>
+      </g>
+      <g font-size="9" fill="#64748b">
+        <text x="10" y="63">Stabilize</text>
+        <text x="10" y="173">Enable + Build</text>
+        <text x="10" y="278">Polish + Handoff</text>
+      </g>
+
+      <!-- Phase 1 bars (W1-W3, x:150-330) -->
+      <g>
+        <rect x="150" y="40" width="180" height="14" rx="2" fill="#0d9488"/>
+        <text x="156" y="51" font-size="10" fill="white" font-weight="600">R4 Architecture</text>
+
+        <rect x="210" y="58" width="120" height="14" rx="2" fill="#14b8a6"/>
+        <text x="216" y="69" font-size="10" fill="white" font-weight="600">R1 Audit + Remediation</text>
+
+        <rect x="150" y="76" width="180" height="14" rx="2" fill="#5eead4"/>
+        <text x="156" y="87" font-size="10" fill="#0f172a" font-weight="600">R3 Framework + Smoke + Baseline</text>
+      </g>
+
+      <!-- M1 milestone -->
+      <polygon points="330,98 338,108 330,118 322,108" fill="#b45309"/>
+      <text x="330" y="135" text-anchor="middle" font-size="11" fill="#b45309" font-weight="700">M1</text>
+
+      <!-- Phase 2 bars (W4-W7, x:330-570) -->
+      <g>
+        <rect x="330" y="150" width="240" height="14" rx="2" fill="#0d9488"/>
+        <text x="336" y="161" font-size="10" fill="white" font-weight="600">R2 Discovery → Build → Validate</text>
+
+        <rect x="330" y="168" width="240" height="14" rx="2" fill="#14b8a6"/>
+        <text x="336" y="179" font-size="10" fill="white" font-weight="600">R3 Critical flows (1–7) + Restocking flow</text>
+
+        <rect x="330" y="186" width="60" height="14" rx="2" fill="#5eead4"/>
+        <text x="336" y="197" font-size="10" fill="#0f172a" font-weight="600">D1 Kickoff</text>
+        <rect x="510" y="186" width="60" height="14" rx="2" fill="#5eead4"/>
+        <text x="516" y="197" font-size="10" fill="#0f172a" font-weight="600">D1 Mockups</text>
+      </g>
+
+      <!-- M2 milestone -->
+      <polygon points="570,208 578,218 570,228 562,218" fill="#b45309"/>
+      <text x="570" y="245" text-anchor="middle" font-size="11" fill="#b45309" font-weight="700">M2</text>
+
+      <!-- Phase 3 bars (W8-W10, x:570-750) -->
+      <g>
+        <rect x="570" y="255" width="60" height="11" rx="2" fill="#0d9488"/>
+        <text x="576" y="263" font-size="9" fill="white" font-weight="600">D1 Implementation</text>
+
+        <rect x="570" y="268" width="120" height="11" rx="2" fill="#14b8a6"/>
+        <text x="576" y="276" font-size="9" fill="white" font-weight="600">D2 i18n extension</text>
+
+        <rect x="630" y="281" width="60" height="11" rx="2" fill="#5eead4"/>
+        <text x="636" y="289" font-size="9" fill="#0f172a" font-weight="600">D3 Dark mode</text>
+
+        <rect x="690" y="255" width="60" height="11" rx="2" fill="#0f172a"/>
+        <text x="696" y="263" font-size="9" fill="white" font-weight="600">Deploy assist</text>
+
+        <rect x="690" y="268" width="60" height="11" rx="2" fill="#475569"/>
+        <text x="696" y="276" font-size="9" fill="white" font-weight="600">KT to IT</text>
+      </g>
+
+      <!-- M3 milestone -->
+      <polygon points="750,290 758,300 750,310 742,300" fill="#b45309"/>
+      <text x="750" y="320" text-anchor="middle" font-size="11" fill="#b45309" font-weight="700">M3</text>
+    </svg>
+  </div>
+  <p style="margin-top: 1rem; font-size: 0.95rem;">Phase 3 is the engagement's natural buffer — desired items absorb any slip from required scope.</p>
+</section>
+
+<!-- Slide 9: Commercial -->
+<section class="slide">
+  <h3>Commercial model</h3>
+  <h2>Hybrid — predictable where honest, capped where uncertain</h2>
+  <div class="price-legend">
+    <span><span class="dot" style="background:#0d9488;"></span>Fixed-fee · R1+R3+R4</span>
+    <span><span class="dot" style="background:#14b8a6;"></span>T&amp;M cap · R2</span>
+    <span><span class="dot" style="background:#5eead4;"></span>Desired · D1+D2+D3 (optional)</span>
+  </div>
+  <div class="price-bar">
+    <div class="seg fix" style="flex: 29040;">€29.040</div>
+    <div class="seg tm" style="flex: 23232;">€23.232</div>
+    <div class="seg des" style="flex: 13200;">€13.200</div>
+  </div>
+  <table class="pricing">
+    <tr><td>Required — fixed-fee (R1 + R3 + R4)</td><td class="amt">€29.040</td></tr>
+    <tr><td>Required — T&amp;M cap (R2)</td><td class="amt">up to €23.232</td></tr>
+    <tr><td>Desired — D1 + D2 + D3 (optional)</td><td class="amt">up to €13.200</td></tr>
+    <tr class="total"><td>Engagement maximum exposure</td><td class="amt">up to €65.472</td></tr>
+  </table>
+  <p style="margin-top: 1.5rem; max-width: 60ch;">Fixed-fee where scope is bounded by an existing artefact. T&amp;M with a hard cap on the only track whose shape is shaped during discovery. We avoid the failure mode that contributed to the previous engagement falling short.</p>
+</section>
+
+<!-- Slide 10: How we work -->
+<section class="slide">
+  <h3>How we work</h3>
+  <h2>Three commitments</h2>
+  <ul>
+    <li><strong>Transparency.</strong> Findings surfaced as we have them, not at milestone reviews. If a fix is harder than expected, you hear about it the day we know.</li>
+    <li><strong>Operations as collaborator.</strong> Tanaka and her team co-author R2 and D1. Their time is planned, not consumed.</li>
+    <li><strong>IT as customer.</strong> R3 and R4 are written to be operated by Meridian IT after handoff. If they cannot run a test or interpret a diagram on day 71, we have failed.</li>
+  </ul>
+</section>
+
+<!-- Slide 11: Why us -->
+<section class="slide">
+  <h3>Why us</h3>
+  <h2>We have read the brief carefully.</h2>
+  <blockquote>
+    The proposal that follows reflects what we believe Meridian actually needs — not just what the document literally asks for.
+  </blockquote>
+  <ul>
+    <li>Mid-market remediation engagements are our pattern, not an exception</li>
+    <li>Vue 3, FastAPI, and Playwright depth on staff — the existing stack is our working surface, not a learning curve</li>
+    <li>Track record of leaving systems IT can operate — references on request</li>
+  </ul>
+</section>
+
+<!-- Slide 12: Q&A -->
+<section class="slide closing">
+  <h1>Questions?</h1>
+  <p>We look forward to the conversation.</p>
+  <div class="firm" style="margin-top: 3rem; color: var(--ink-soft);">[ Firm name ] · RFP MC-2026-0417 · April 2026</div>
+</section>
+
+</div>
+
+<div class="footer">
+  <div id="counter">1 / 12</div>
+  <div class="nav">
+    <button onclick="prev()">← Prev</button>
+    <button onclick="next()">Next →</button>
+  </div>
+  <div>← / → / Space to navigate · F11 for fullscreen · Ctrl+P to print</div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let idx = 0;
+
+  function show(i) {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[i].classList.add('active');
+    document.getElementById('counter').textContent = (i + 1) + ' / ' + total;
+    document.getElementById('progress').style.width = ((i + 1) / total * 100) + '%';
+  }
+
+  function next() { if (idx < total - 1) { idx++; show(idx); } }
+  function prev() { if (idx > 0) { idx--; show(idx); } }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    if (e.key === 'Home') { idx = 0; show(idx); }
+    if (e.key === 'End') { idx = total - 1; show(idx); }
+  });
+
+  show(0);
+</script>
+
+</body>
+</html>

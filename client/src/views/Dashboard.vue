@@ -200,7 +200,7 @@
                   </td>
                   <td @click="showBacklogDetail(item)" style="cursor: pointer;">
                     <span :style="{ color: item.days_delayed > 7 ? '#ef4444' : '#f59e0b', fontWeight: 600 }">
-                      {{ item.days_delayed }} {{ t('dashboard.inventoryShortages.days') }}
+                      {{ pluralize(item.days_delayed, t('dashboard.inventoryShortages.day'), t('dashboard.inventoryShortages.days')) }}
                     </span>
                   </td>
                   <td @click="showBacklogDetail(item)" style="cursor: pointer;">
@@ -302,6 +302,7 @@ import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency } from '../utils/currency'
+import { pluralize } from '../utils/pluralize'
 import ProductDetailModal from '../components/ProductDetailModal.vue'
 import BacklogDetailModal from '../components/BacklogDetailModal.vue'
 
@@ -720,7 +721,8 @@ export default {
       poModalMode,
       openPOModal,
       viewPO,
-      handlePOCreated
+      handlePOCreated,
+      pluralize
     }
   }
 }

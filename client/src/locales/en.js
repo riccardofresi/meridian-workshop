@@ -6,7 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
-    companyName: 'Catalyst Components',
+    companyName: 'Meridian Components',
     subtitle: 'Inventory Management System'
   },
 
@@ -55,6 +55,7 @@ export default {
       daysDelayed: 'Days Delayed',
       priority: 'Priority',
       unitsShort: 'units short',
+      day: 'day',
       days: 'days'
     },
     topProducts: {
@@ -186,6 +187,93 @@ export default {
       trend: 'Trend',
       period: 'Period'
     }
+  },
+
+  // Backlog view
+  backlog: {
+    title: 'Backlog Management',
+    subtitle: 'Track and resolve inventory shortages',
+    loading: 'Loading backlog...',
+    loadError: 'Failed to load backlog',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    sectionTitle: 'Backlog Items',
+    empty: '✓ No backlog items - all orders can be fulfilled!',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    },
+    unitsShort: 'units short'
+  },
+
+  // Restocking view (R2)
+  restocking: {
+    title: 'Restocking Recommendations',
+    subtitle: 'Recommended purchase orders given current stock, demand forecast, and your budget ceiling.',
+    budgetLabel: 'Budget ceiling',
+    serviceLevelLabel: 'Service level',
+    generate: 'Generate recommendations',
+    loading: 'Calculating recommendations...',
+    loadError: 'Failed to load recommendations',
+    noResults: 'No restocking actions needed at the current stock and forecast.',
+    summary: {
+      candidates: 'Candidates',
+      inBudget: 'In budget',
+      outOfBudget: 'Out of budget',
+      totalCost: 'Total selected cost',
+      remaining: 'Budget remaining'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      category: 'Category',
+      warehouse: 'Warehouse',
+      onHand: 'On Hand',
+      reorderPoint: 'Reorder Point',
+      forecast: 'Forecast',
+      recommendedQty: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      estCost: 'Est. Cost',
+      status: 'Status'
+    },
+    status: {
+      inBudget: 'In budget',
+      outOfBudget: 'Out of budget'
+    },
+    note: 'Operator-overridable. Recommendations are computed via an (s, S) policy with newsvendor service-level calibration; coverage is currently limited to SKUs with an active demand forecast.'
+  },
+
+  // Reports view
+  reports: {
+    title: 'Performance Reports',
+    subtitle: 'View quarterly performance metrics and monthly trends',
+    loading: 'Loading reports...',
+    loadError: 'Failed to load reports',
+    quarterlyPerformance: 'Quarterly Performance',
+    monthlyRevenueTrend: 'Monthly Revenue Trend',
+    monthOverMonth: 'Month-over-Month Analysis',
+    quarter: 'Quarter',
+    totalOrders: 'Total Orders',
+    totalRevenue: 'Total Revenue',
+    avgOrderValue: 'Avg Order Value',
+    fulfillmentRate: 'Fulfillment Rate',
+    month: 'Month',
+    orders: 'Orders',
+    revenue: 'Revenue',
+    change: 'Change',
+    growthRate: 'Growth Rate',
+    totalRevenueYtd: 'Total Revenue (YTD)',
+    avgMonthlyRevenue: 'Avg Monthly Revenue',
+    totalOrdersYtd: 'Total Orders (YTD)',
+    bestPerformingQuarter: 'Best Performing Quarter'
   },
 
   // Filters

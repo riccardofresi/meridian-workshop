@@ -6,7 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
-    companyName: '触媒コンポーネンツ',
+    companyName: 'メリディアン・コンポーネンツ',
     subtitle: '在庫管理システム'
   },
 
@@ -55,6 +55,7 @@ export default {
       daysDelayed: '遅延日数',
       priority: '優先度',
       unitsShort: '単位不足',
+      day: '日',
       days: '日'
     },
     topProducts: {
@@ -186,6 +187,93 @@ export default {
       trend: 'トレンド',
       period: '期間'
     }
+  },
+
+  // Backlog view
+  backlog: {
+    title: 'バックログ管理',
+    subtitle: '在庫不足を追跡し解決',
+    loading: 'バックログを読み込み中...',
+    loadError: 'バックログの読み込みに失敗しました',
+    highPriority: '優先度: 高',
+    mediumPriority: '優先度: 中',
+    lowPriority: '優先度: 低',
+    totalItems: 'バックログアイテム総数',
+    sectionTitle: 'バックログアイテム',
+    empty: '✓ バックログアイテムなし - すべての注文を履行できます！',
+    table: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      itemName: '品目名',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      shortage: '不足',
+      daysDelayed: '遅延日数',
+      priority: '優先度'
+    },
+    unitsShort: '単位不足'
+  },
+
+  // Restocking view (R2)
+  restocking: {
+    title: '補充推奨',
+    subtitle: '現在の在庫、需要予測、予算上限に基づいて推奨される発注書。',
+    budgetLabel: '予算上限',
+    serviceLevelLabel: 'サービスレベル',
+    generate: '推奨を生成',
+    loading: '推奨を計算中...',
+    loadError: '推奨の読み込みに失敗しました',
+    noResults: '現在の在庫と予測では、補充は必要ありません。',
+    summary: {
+      candidates: '候補',
+      inBudget: '予算内',
+      outOfBudget: '予算外',
+      totalCost: '選択合計コスト',
+      remaining: '予算残高'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      category: 'カテゴリ',
+      warehouse: '倉庫',
+      onHand: '在庫数',
+      reorderPoint: '発注点',
+      forecast: '予測',
+      recommendedQty: '推奨数量',
+      unitCost: '単価',
+      estCost: '見積コスト',
+      status: 'ステータス'
+    },
+    status: {
+      inBudget: '予算内',
+      outOfBudget: '予算外'
+    },
+    note: 'オペレータが調整可能。推奨は(s, S)ポリシーとニュースベンダーモデルのサービスレベル較正で計算されます。現在、需要予測が存在するSKUに限定されています。'
+  },
+
+  // Reports view
+  reports: {
+    title: 'パフォーマンスレポート',
+    subtitle: '四半期パフォーマンス指標と月次トレンドを表示',
+    loading: 'レポートを読み込み中...',
+    loadError: 'レポートの読み込みに失敗しました',
+    quarterlyPerformance: '四半期パフォーマンス',
+    monthlyRevenueTrend: '月次収益トレンド',
+    monthOverMonth: '前月比分析',
+    quarter: '四半期',
+    totalOrders: '合計注文数',
+    totalRevenue: '合計収益',
+    avgOrderValue: '平均注文金額',
+    fulfillmentRate: '達成率',
+    month: '月',
+    orders: '注文数',
+    revenue: '収益',
+    change: '変化',
+    growthRate: '成長率',
+    totalRevenueYtd: '累計収益 (YTD)',
+    avgMonthlyRevenue: '月平均収益',
+    totalOrdersYtd: '累計注文数 (YTD)',
+    bestPerformingQuarter: '最高業績四半期'
   },
 
   // Filters

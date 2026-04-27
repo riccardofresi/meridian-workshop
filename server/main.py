@@ -228,12 +228,23 @@ def get_recent_transactions():
     return recent_transactions
 
 @app.get("/api/reports/quarterly")
-def get_quarterly_reports():
-    """Get quarterly performance reports"""
-    # Calculate quarterly statistics from orders
+def get_quarterly_reports(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get quarterly performance reports, with the same filter set as /api/orders.
+
+    Filters are applied to the underlying orders before aggregation, so the
+    quarterly view reflects the operator's current filter selection.
+    """
+    filtered_orders = apply_filters(orders, warehouse, category, status)
+    filtered_orders = filter_by_month(filtered_orders, month)
+
     quarters = {}
 
-    for order in orders:
+    for order in filtered_orders:
         order_date = order.get('order_date', '')
         # Determine quarter
         if '2025-01' in order_date or '2025-02' in order_date or '2025-03' in order_date:
@@ -274,11 +285,19 @@ def get_quarterly_reports():
     return result
 
 @app.get("/api/reports/monthly-trends")
-def get_monthly_trends():
-    """Get month-over-month trends"""
+def get_monthly_trends(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get month-over-month trends, accepting the same filters as /api/orders."""
+    filtered_orders = apply_filters(orders, warehouse, category, status)
+    filtered_orders = filter_by_month(filtered_orders, month)
+
     months = {}
 
-    for order in orders:
+    for order in filtered_orders:
         order_date = order.get('order_date', '')
         if not order_date:
             continue
@@ -303,6 +322,122 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+# Approximate inverse standard normal for common service levels.
+# The (s, S) reorder-point formula uses z = Phi^-1(service_level).
+# We hard-code the most-used industrial-distribution service levels rather
+# than ship a heavy stats dependency for a six-entry lookup.
+_SERVICE_LEVEL_Z = {
+    0.80: 0.842,
+    0.85: 1.036,
+    0.90: 1.282,
+    0.95: 1.645,
+    0.97: 1.881,
+    0.98: 2.054,
+    0.99: 2.326,
+}
+
+def _z_for(service_level: float) -> float:
+    """Return the z-score for a service level, snapping to the closest tabulated value."""
+    closest = min(_SERVICE_LEVEL_Z.keys(), key=lambda k: abs(k - service_level))
+    return _SERVICE_LEVEL_Z[closest]
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations(
+    budget: float = 100000,
+    service_level: float = 0.95,
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None
+):
+    """Compute restocking recommendations using an (s, S)-style policy.
+
+    For each inventory item that has a corresponding demand forecast:
+      reorder_point s = item.reorder_point  (existing data, treated as μ_LT + safety)
+      forecast      F = forecast.forecasted_demand
+      on_hand       Q
+      shortfall     = max(0, F - Q)        # what we need to satisfy the forecast
+      qty_to_order  = shortfall            # order-up-to F (upper bound clipped by budget)
+      cost          = qty_to_order * unit_cost
+      criticality   = shortfall * unit_cost  # rank by both urgency and value at stake
+
+    Candidates are sorted by criticality desc, and a greedy pass marks each as
+    `in_budget` until the cumulative cost would exceed the operator's ceiling.
+    Operators can override quantities client-side; this endpoint is the
+    starting recommendation, not the final purchase order.
+
+    Service level affects the safety-stock z-score we surface in the response
+    metadata; today the data already encodes a fixed reorder_point, so the
+    z-score is informational. When R2 evolves to compute s from σ_LT, the
+    z-score will move into the formula.
+
+    Filters (warehouse, category) narrow the candidate pool before ranking.
+    """
+    z = _z_for(service_level)
+    forecasts_by_sku = {f["item_sku"]: f for f in demand_forecasts}
+
+    pool = apply_filters(inventory_items, warehouse=warehouse, category=category)
+
+    candidates = []
+    for item in pool:
+        forecast = forecasts_by_sku.get(item["sku"])
+        if not forecast:
+            # No forecast = no recommendation. Documented limitation: only the
+            # 9 SKUs in the forecast file get scored. Operations can extend
+            # forecast coverage without code changes.
+            continue
+
+        on_hand = item.get("quantity_on_hand", 0)
+        forecasted = forecast.get("forecasted_demand", 0)
+        unit_cost = item.get("unit_cost", 0)
+        reorder_point = item.get("reorder_point", 0)
+
+        shortfall = max(0, forecasted - on_hand)
+        if shortfall == 0 and on_hand >= reorder_point:
+            # Adequately stocked against forecast and not below reorder point.
+            continue
+
+        qty = shortfall if shortfall > 0 else (reorder_point - on_hand)
+        cost = round(qty * unit_cost, 2)
+        criticality = round(shortfall * unit_cost, 2) if shortfall > 0 else cost
+
+        candidates.append({
+            "sku": item["sku"],
+            "name": item["name"],
+            "category": item["category"],
+            "warehouse": item["warehouse"],
+            "on_hand": on_hand,
+            "reorder_point": reorder_point,
+            "forecasted_demand": forecasted,
+            "recommended_qty": qty,
+            "unit_cost": unit_cost,
+            "estimated_cost": cost,
+            "criticality": criticality,
+            "in_budget": False,
+        })
+
+    candidates.sort(key=lambda c: c["criticality"], reverse=True)
+
+    cumulative = 0.0
+    items_in_budget = 0
+    for c in candidates:
+        if cumulative + c["estimated_cost"] <= budget:
+            c["in_budget"] = True
+            cumulative += c["estimated_cost"]
+            items_in_budget += 1
+
+    return {
+        "recommendations": candidates,
+        "summary": {
+            "budget": budget,
+            "service_level": service_level,
+            "z_score": z,
+            "total_candidates": len(candidates),
+            "items_in_budget": items_in_budget,
+            "items_out_of_budget": len(candidates) - items_in_budget,
+            "total_in_budget_cost": round(cumulative, 2),
+            "total_recommended_cost": round(sum(c["estimated_cost"] for c in candidates), 2),
+        },
+    }
 
 if __name__ == "__main__":
     import uvicorn

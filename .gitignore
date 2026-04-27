@@ -50,5 +50,21 @@ logs/
 # Playwright MCP artifacts
 .playwright-mcp/
 
+# Playwright test runner artifacts
+tests/e2e/playwright-report/
+tests/e2e/test-results/
+
+# Local Claude Code settings (per-developer)
+.claude/settings.local.json
+
+# Workshop-host scratch files (kept out of the engagement repo)
+/Anthropic FDE Training FAQ.pdf
+/bedrock_check.stderr.txt
+/bedrock_check.stdout.txt
+/claude-trainee-setup-guide.md
+/testclaude.py
+/testclaude.stderr.txt
+/testclaude.stdout.txt
+
 # Environment variables
 .env
