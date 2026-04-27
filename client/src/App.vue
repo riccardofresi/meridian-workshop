@@ -641,4 +641,98 @@ tbody tr:hover {
   --toggle-bg-hover: var(--bg-muted);
   --toggle-fg-hover: var(--ink-strong);
 }
+
+/* ---------------------------------------------------------------
+ * High-specificity overrides for surfaces that are styled in
+ * component-scoped CSS. Vue scoped styles add a [data-v-xxx]
+ * attribute to selectors; their specificity ties with our globals,
+ * but they are loaded after App.vue and win on tie. We use
+ * `!important` here deliberately — these rules only apply under
+ * [data-theme="dark"], so the trade-off is bounded.
+ * --------------------------------------------------------------- */
+:root[data-theme="dark"] .kpi-card {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] .filter-select,
+:root[data-theme="dark"] select.filter-select {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] .filter-select:hover,
+:root[data-theme="dark"] .filter-select:focus {
+  border-color: var(--ink-soft) !important;
+}
+
+:root[data-theme="dark"] .filters-bar {
+  background: var(--bg-app) !important;
+  border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .clickable-row:hover {
+  background: var(--bg-muted) !important;
+}
+
+:root[data-theme="dark"] .h-bar-container,
+:root[data-theme="dark"] .task-item:hover {
+  background: var(--bg-muted) !important;
+}
+
+/* Stat-card and kpi-card values often have hardcoded ink color in
+ * scoped CSS — pull them onto the variable too. */
+:root[data-theme="dark"] .stat-value,
+:root[data-theme="dark"] .kpi-card .stat-value,
+:root[data-theme="dark"] .kpi-value {
+  color: var(--ink-strong) !important;
+}
+
+/* Generic card-like containers in views often re-declare bg: white. */
+:root[data-theme="dark"] .stats-grid > .stat-card,
+:root[data-theme="dark"] .stats-grid > .kpi-card {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+}
+
+/* Banner control buttons — language switcher, profile menu, reset filters.
+ * All three live in component-scoped CSS with `background: white;`. */
+:root[data-theme="dark"] .language-button,
+:root[data-theme="dark"] .profile-button,
+:root[data-theme="dark"] .reset-filters-btn {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] .language-button:hover,
+:root[data-theme="dark"] .profile-button:hover,
+:root[data-theme="dark"] .reset-filters-btn:hover:not(:disabled) {
+  background: var(--bg-muted) !important;
+  border-color: var(--ink-soft) !important;
+}
+
+/* Dropdowns hanging off those buttons (LanguageSwitcher dropdown menu,
+ * ProfileMenu menu and items). */
+:root[data-theme="dark"] .dropdown-menu,
+:root[data-theme="dark"] .profile-menu,
+:root[data-theme="dark"] .menu-item,
+:root[data-theme="dark"] .dropdown-item {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] .dropdown-item:hover,
+:root[data-theme="dark"] .menu-item:hover {
+  background: var(--bg-muted) !important;
+  color: var(--ink-strong) !important;
+}
+
+:root[data-theme="dark"] .language-name,
+:root[data-theme="dark"] .language-label {
+  color: var(--ink) !important;
+}
 </style>
