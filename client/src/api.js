@@ -85,6 +85,17 @@ export const api = {
     return response.data
   },
 
+  async getRestockingRecommendations({ budget, service_level = 0.95, warehouse = 'all', category = 'all' } = {}) {
+    const params = new URLSearchParams()
+    if (budget != null) params.append('budget', budget)
+    params.append('service_level', service_level)
+    if (warehouse && warehouse !== 'all') params.append('warehouse', warehouse)
+    if (category && category !== 'all') params.append('category', category)
+
+    const response = await axios.get(`${API_BASE_URL}/restocking/recommendations?${params.toString()}`)
+    return response.data
+  },
+
   async getReportsMonthlyTrends(filters = {}) {
     const params = new URLSearchParams()
     if (filters.warehouse && filters.warehouse !== 'all') params.append('warehouse', filters.warehouse)

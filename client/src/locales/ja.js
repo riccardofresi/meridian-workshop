@@ -189,6 +189,43 @@ export default {
     }
   },
 
+  // Restocking view (R2)
+  restocking: {
+    title: '補充推奨',
+    subtitle: '現在の在庫、需要予測、予算上限に基づいて推奨される発注書。',
+    budgetLabel: '予算上限',
+    serviceLevelLabel: 'サービスレベル',
+    generate: '推奨を生成',
+    loading: '推奨を計算中...',
+    loadError: '推奨の読み込みに失敗しました',
+    noResults: '現在の在庫と予測では、補充は必要ありません。',
+    summary: {
+      candidates: '候補',
+      inBudget: '予算内',
+      outOfBudget: '予算外',
+      totalCost: '選択合計コスト',
+      remaining: '予算残高'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      category: 'カテゴリ',
+      warehouse: '倉庫',
+      onHand: '在庫数',
+      reorderPoint: '発注点',
+      forecast: '予測',
+      recommendedQty: '推奨数量',
+      unitCost: '単価',
+      estCost: '見積コスト',
+      status: 'ステータス'
+    },
+    status: {
+      inBudget: '予算内',
+      outOfBudget: '予算外'
+    },
+    note: 'オペレータが調整可能。推奨は(s, S)ポリシーとニュースベンダーモデルのサービスレベル較正で計算されます。現在、需要予測が存在するSKUに限定されています。'
+  },
+
   // Reports view
   reports: {
     title: 'パフォーマンスレポート',

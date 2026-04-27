@@ -189,6 +189,43 @@ export default {
     }
   },
 
+  // Restocking view (R2)
+  restocking: {
+    title: 'Restocking Recommendations',
+    subtitle: 'Recommended purchase orders given current stock, demand forecast, and your budget ceiling.',
+    budgetLabel: 'Budget ceiling',
+    serviceLevelLabel: 'Service level',
+    generate: 'Generate recommendations',
+    loading: 'Calculating recommendations...',
+    loadError: 'Failed to load recommendations',
+    noResults: 'No restocking actions needed at the current stock and forecast.',
+    summary: {
+      candidates: 'Candidates',
+      inBudget: 'In budget',
+      outOfBudget: 'Out of budget',
+      totalCost: 'Total selected cost',
+      remaining: 'Budget remaining'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      category: 'Category',
+      warehouse: 'Warehouse',
+      onHand: 'On Hand',
+      reorderPoint: 'Reorder Point',
+      forecast: 'Forecast',
+      recommendedQty: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      estCost: 'Est. Cost',
+      status: 'Status'
+    },
+    status: {
+      inBudget: 'In budget',
+      outOfBudget: 'Out of budget'
+    },
+    note: 'Operator-overridable. Recommendations are computed via an (s, S) policy with newsvendor service-level calibration; coverage is currently limited to SKUs with an active demand forecast.'
+  },
+
   // Reports view
   reports: {
     title: 'Performance Reports',
