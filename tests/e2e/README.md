@@ -74,12 +74,12 @@ is below. Tests are added incrementally; this README is the source of truth for 
 | # | Flow | Spec file | Status |
 |---|------|-----------|--------|
 | 1 | Login &amp; navigation across all views | `specs/01-smoke-navigation.spec.js` | ✅ shipped |
-| 2 | Inventory filtering across warehouses and categories | `specs/02-inventory-filters.spec.js` | ⬜ planned |
-| 3 | Order drill-down with filter combinations | `specs/03-orders-drilldown.spec.js` | ⬜ planned |
+| 2 | Inventory filtering across warehouses and categories | `specs/02-inventory-filters.spec.js` | ✅ shipped |
+| 3 | Order drill-down with filter combinations | `specs/03-orders-drilldown.spec.js` | ✅ shipped |
 | 4 | Reports — quarterly view with all filters applied | `specs/04-reports.spec.js` | ✅ existing-behaviour shipped · 🚧 regression contract `fixme`, flips on R1 rewrite |
-| 5 | Demand forecast view rendering and trend display | `specs/05-demand.spec.js` | ⬜ planned |
+| 5 | Demand forecast view rendering and trend display | `specs/05-demand.spec.js` | ✅ shipped |
 | 6 | Backlog view with PO status tracking | `specs/06-backlog.spec.js` | ⬜ planned (pending #DEBT-05 — view not routed) |
-| 7 | Spending — summary, monthly, and category views with filter consistency | `specs/07-spending.spec.js` | ⬜ planned |
+| 7 | Spending — summary, monthly, and category views with filter consistency | `specs/07-spending.spec.js` | ✅ shipped |
 | 8 | Restocking flow end-to-end (added in Phase 2) | `specs/08-restocking.spec.js` | ⬜ planned (R2 build) |
 
 ## Authoring conventions

@@ -9,7 +9,7 @@
 
 ## Summary
 
-The audit confirms the previous vendor's handoff statement that the Reports module was left "in progress" and that "at least eight" defects were logged. We consolidate **15 distinct defects** across three views (Reports, Backlog, Spending), the application shell (App.vue / Dashboard branding), and the API surface, plus **one design clarification** to validate with VP Operations.
+The audit confirms the previous vendor's handoff statement that the Reports module was left "in progress" and that "at least eight" defects were logged. We consolidate **16 distinct defects** across three views (Reports, Backlog, Spending), the application shell (App.vue / Dashboard branding), and the API surface, plus **one design clarification** to validate with VP Operations.
 
 **Distribution by severity:**
 
@@ -17,7 +17,7 @@ The audit confirms the previous vendor's handoff statement that the Reports modu
 |---|:-:|---|
 | **High** | 5 | Feature does not function or wrong data visible to operator |
 | **Medium** | 7 | Structural debt, divergence from project conventions |
-| **Low** | 3 | Developer-experience or cosmetic |
+| **Low** | 4 | Developer-experience or cosmetic |
 | **Clarification** | 1 | Design intent question for client (not a defect) |
 
 **Distribution by track:**
@@ -126,6 +126,14 @@ This is **+87% above the 8-defect baseline** in the RFP. We anticipated a +50% t
 **Severity:** Medium — not a functional break, but a visible client-name error that would damage credibility if shown in a demo to procurement. Trivial to fix.
 **Resolution:** rename to "Meridian Components" in `App.vue`, plus check `locales/en.js` and `locales/ja.js` for any matching string. One-line change, ship in W3 cleanup window with the rest of the cosmetic fixes.
 
+### #17 — Spending category percentages displayed as "of total" but sum to ~124%
+**File:** `client/src/views/Spending.vue:121` (`{{ category.percentage }}% of total`); `server/main.py` returns the four cost categories
+**Symptom:** the four cost categories (Raw Materials 42.5%, Components 38.8%, Consumables 23.3%, Equipment 19.0%) each display "% of total" — but the four percentages sum to approximately **124%**, which is mathematically inconsistent with "of total".
+**Likely cause:** each percentage appears to be computed relative to a different denominator (its own subtotal or budget?), but the label "of total" implies a single denominator. Either the labels are wrong or the maths are wrong.
+**Severity:** Low — visible to operators reading the Finance page. Would prompt a "the numbers don't add up" question from Tanaka or procurement during a demo.
+**Discovered:** while writing the R3 Spending E2E spec (Phase 2 W5).
+**Resolution path (proposed):** confirm with operations whether the intent is (a) "% of overall spend" (then maths needs fixing in `server/main.py`) or (b) "% of own bucket" (then label needs to read e.g. "% of procurement" / "% of operational"). One-line fix once confirmed.
+
 ### #16 — `"1 days"` instead of `"1 day"` in inventory-shortages table (pluralization bug)
 **File:** Dashboard inventory-shortages table — likely `client/src/views/Dashboard.vue` (Days Delayed column)
 **Symptom:** rows where `days_delayed === 1` render as "1 days" instead of "1 day". Confirmed in operator walk-through (visible in row `ORD-2025-0929`).
@@ -169,6 +177,7 @@ We will raise this in the W1 working session with Operations and act on the answ
 | #12, #13 | ✅ **Closed** in W3 cleanup | Spending: removed `alert()` and dead click handler; replaced 4 in-template `toLocaleString` with `formatCurrency` |
 | #15 | ✅ **Closed** in W3 cleanup | Banner brand: `Catalyst Components` → `Meridian Components` (en) and `触媒コンポーネンツ` → `メリディアン・コンポーネンツ` (ja) |
 | #16 | ✅ **Closed** in W3 cleanup | Added `utils/pluralize.js`; applied in Dashboard inventory-shortages row and BacklogDetailModal. Verified `1 day` / `3 days` / `5 days` |
+| #17 | ⏸️ **Open** | Discovered W5 while writing Spending E2E. Cost-category percentages display "% of total" but sum to ~124%. Resolution requires Operations input on intended denominator |
 | Q1 | ⏸️ **Pending** Operations | W1 working session not yet held in workshop simulation |
 
 **Defect-count vs proposal baseline.** 15 confirmed defects against the 8 logged. **9 closed in Phase 1 (R1 rewrite + W3 cleanup).** Remaining 6 are deferred pending stakeholder input or absorbed into Phase 2 R2 build — none represent unaddressed scope. Below the 150% T&M-conversion trigger (per pricing assumption). **No T&M conversion needed.**
