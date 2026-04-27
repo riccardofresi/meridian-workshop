@@ -173,7 +173,7 @@ We will raise this in the W1 working session with Operations and act on the answ
 |---|---|---|
 | #01, #04, #05, #06, #07, #10, #11 | ✅ **Closed** in W2 — single Reports rewrite | Composition API · `useFilters`+`watch` · `useI18n` · `api.js` centralization · stable v-for keys · console-log cleanup |
 | #02, #03, #14 | ⏸️ **Deferred** | #02 awaits Tanaka decision (W1 session); #03 + #14 absorbed into R2 build (Phase 2) |
-| #08, #09 | ⏸️ **Deferred — depends on #DEBT-05** | Backlog.vue is dead code (no route registered). Decision and i18n fix go together; pending Operations input |
+| #08, #09 | ✅ **Closed** in W7 | `/backlog` route registered (closes #DEBT-05); Backlog.vue rewritten with `useI18n`, full `backlog.*` namespace in en/ja, priority labels translated via `priority.*`, `pluralize` helper applied to Days Delayed |
 | #12, #13 | ✅ **Closed** in W3 cleanup | Spending: removed `alert()` and dead click handler; replaced 4 in-template `toLocaleString` with `formatCurrency` |
 | #15 | ✅ **Closed** in W3 cleanup | Banner brand: `Catalyst Components` → `Meridian Components` (en) and `触媒コンポーネンツ` → `メリディアン・コンポーネンツ` (ja) |
 | #16 | ✅ **Closed** in W3 cleanup | Added `utils/pluralize.js`; applied in Dashboard inventory-shortages row and BacklogDetailModal. Verified `1 day` / `3 days` / `5 days` |

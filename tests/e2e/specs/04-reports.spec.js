@@ -95,6 +95,12 @@ test.describe('Reports — R1 regression contract', () => {
   // These tests gate the R1 rewrite (defect #01 filter integration, defect #07 i18n).
   // All green => the rewrite delivered the required behaviour.
 
+  // The locale switcher persists to localStorage; reset it after every test
+  // in this block so subsequent files don't inherit a Japanese UI.
+  test.afterEach(async ({ page }) => {
+    await page.evaluate(() => window.localStorage.removeItem('app-locale'))
+  })
+
   // Helper: locate the <select> inside the .filter-group whose label contains the given text.
   // The FilterBar uses sibling <label>+<select>, not associated, so getByLabel doesn't apply.
   const filterSelect = (page, labelText) =>

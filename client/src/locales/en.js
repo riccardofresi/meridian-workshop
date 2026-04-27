@@ -189,6 +189,31 @@ export default {
     }
   },
 
+  // Backlog view
+  backlog: {
+    title: 'Backlog Management',
+    subtitle: 'Track and resolve inventory shortages',
+    loading: 'Loading backlog...',
+    loadError: 'Failed to load backlog',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    sectionTitle: 'Backlog Items',
+    empty: '✓ No backlog items - all orders can be fulfilled!',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    },
+    unitsShort: 'units short'
+  },
+
   // Restocking view (R2)
   restocking: {
     title: 'Restocking Recommendations',
